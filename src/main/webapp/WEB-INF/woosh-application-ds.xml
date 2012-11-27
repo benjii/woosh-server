@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       					   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+       					   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+						   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+
+	<context:property-placeholder location="classpath:database.properties" />
+
+	<!-- we declare only UserDao (we have not migrated Spring Security forward yet) -->
+  	<bean id="userDao" class="com.luminos.woosh.dao.hibernate.UserDaoHibernateImpl">
+  		<property name="sessionFactory" ref="sessionFactory" />
+  	</bean>
+ 
+	<!-- transactions are annotation driven -->
+  	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- standard intercepter to set the 'lastUpdated' property for persisted entities -->
+  	<bean id="wooshInterceptor" class="com.luminos.woosh.hibernate.LuminosHibernateIntercepter" />
+
+	<!-- the Hibernate transaction manager -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    	<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="dataSource" ref="dataSource" />
+    </bean>
+  	
+  	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    	<property name="user" value="${dataSource.user}" />
+    	<property name="password" value="${dataSource.password}" />
+
+    	<property name="driverClass" value="org.postgresql.Driver" />
+    	<property name="jdbcUrl" value="${dataSource.jdbcUrl}" />
+
+		<!-- these values can be tuned over time to get the best performance -->
+		<!-- BE CAREFUL though - setting bad values can result in more 'apparent deadlock' errors, etc -->
+
+    	<property name="acquireIncrement" value="2" />
+    	<property name="initialPoolSize" value="20" />
+    	<property name="minPoolSize" value="20" />
+    	<property name="maxPoolSize" value="400" />
+    	<property name="maxStatements" value="50" />
+		<property name="idleConnectionTestPeriod" value="100" /> 
+    	<property name="maxIdleTime" value="1800" />
+    	<property name="maxIdleTimeExcessConnections" value="100" />
+    	<property name="numHelperThreads" value="16" />
+    	<property name="preferredTestQuery" value="SELECT 1" />
+    	<property name="testConnectionOnCheckout" value="true" />
+    	
+    	<!-- property name="maxConnectionAge" value="7200" / -->
+    	<!-- property name="maxIdleTime" value="7200" / -->
+    </bean>
+
+  	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+    	<property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration" />
+   		<property name="dataSource" ref="dataSource" />
+   		<property name="entityInterceptor" ref="wooshInterceptor" />
+		
+		<property name="annotatedClasses">
+     		<list>
+
+       			<value>com.luminos.woosh.domain.common.User</value>
+       			<value>com.luminos.woosh.domain.common.Role</value>
+       			<value>com.luminos.woosh.domain.common.RemoteBinaryObject</value>
+
+       			<value>com.luminos.woosh.domain.Card</value>
+       			<value>com.luminos.woosh.domain.CardData</value>
+       			<value>com.luminos.woosh.domain.Offer</value>
+       			<value>com.luminos.woosh.domain.Acceptance</value>
+       			<value>com.luminos.woosh.domain.Scan</value>
+
+     		</list>
+   		</property>    	
+   		
+   		<property name="hibernateProperties">
+      		<value>
+        		hibernate.dialect=org.hibernatespatial.postgis.PostgisDialect
+        		hibernate.jdbc.batch_size=300
+        		hibernate.show_sql=false
+        		hibernate.default_batch_fetch_size=1024
+				hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
+
+				hibernate.c3p0.acquire_increment=2				
+				hibernate.c3p0.initial_size=10				
+  				hibernate.c3p0.min_size=10
+        		hibernate.c3p0.max_size=200
+        		hibernate.c3p0.timeout=300
+        		hibernate.c3p0.max_statements=0
+        		hibernate.c3p0.idle_test_period=3000
+		    	hibernate.c3p0.numHelperThreads=1024
+		    	hibernate.c3p0.testConnectionOnCheckout=true
+        				
+			</value>
+    	</property>
+  	</bean>
+    	
+ </beans>

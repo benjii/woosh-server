@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:security="http://www.springframework.org/schema/security"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
+
+	<security:global-method-security secured-annotations="enabled" />
+	
+	<security:http auto-config="true" entry-point-ref="luminosAuthenticationEntryPoint">
+
+		<!-- the login page is unauthenticated -->
+		<!--
+		<security:intercept-url pattern="/login.p" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/usermanual/get" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/m/accounts/**/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		 -->
+
+		<!-- all root-level pages are protected -->
+		<security:intercept-url pattern="/*" access="ROLE_USER" />
+		<security:intercept-url pattern="/**/*" access="ROLE_USER" />
+				 	
+		<!-- the logout page is protected (you must have been logged in to be able to log out) -->
+		<!--		
+		<security:intercept-url pattern="/j_spring_security_logout" access="ROLE_USER" />
+		-->
+
+		<!-- we allow multiple concurrent sessions so that the user can be logged into the web and their device at the same time -->		
+		<security:session-management>
+			<security:concurrency-control max-sessions="5" />
+		</security:session-management>
+
+		<security:form-login login-page='/login' authentication-failure-url='/login?err=1' default-target-url='/home' always-use-default-target='false' />
+
+		<security:logout invalidate-session="true" logout-success-url="/login" />
+		
+		<security:remember-me data-source-ref="dataSource" key="woosh" /> <!-- user-service-ref="waybridgeUserDetailsService" -->
+		
+	</security:http>
+
+  	<bean id="luminosUserDetailsService" class="com.luminos.woosh.security.LuminosUserDetailsService" />
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider user-service-ref='luminosUserDetailsService'>
+			<security:password-encoder hash="md5" ref="passwordEncoder" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<bean id="luminosAuthenticationEntryPoint" class="com.luminos.woosh.security.LuminosAuthenticationEntryPoint">
+  		<property name="loginUrl" value="/login.f"></property>
+  	</bean>
+	
+  	<bean id="passwordEncoder" class=" org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+  	  	
+</beans>

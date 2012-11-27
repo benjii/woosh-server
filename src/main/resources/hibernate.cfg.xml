@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration
+    PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<!-- NOTE: this is only for the Hibernate Maven plug-in for database schema generation and is not used at runtime -->
+
+<hibernate-configuration>
+    
+    <session-factory>
+
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://localhost/woosh</property>
+        <property name="connection.username">woosh</property>
+        <property name="connection.password">password</property>
+        <property name="dialect">org.hibernatespatial.postgis.PostgisDialect</property>
+
+		<!-- domain objects that are used by all synchronization entities -->
+		<mapping class="com.luminos.woosh.domain.common.User" />
+		<mapping class="com.luminos.woosh.domain.common.Role" />
+		<mapping class="com.luminos.woosh.domain.common.RemoteBinaryObject" />
+
+		<!-- woosh domain objects -->
+		<mapping class="com.luminos.woosh.domain.Card" />
+		<mapping class="com.luminos.woosh.domain.CardData" />
+		<mapping class="com.luminos.woosh.domain.Offer" />
+		<mapping class="com.luminos.woosh.domain.Acceptance" />
+		<mapping class="com.luminos.woosh.domain.Scan" />
+
+    </session-factory>
+    
+</hibernate-configuration>

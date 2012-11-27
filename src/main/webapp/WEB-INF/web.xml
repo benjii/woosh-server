@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+		 version="2.4">
+
+	<display-name>Woosh</display-name>
+
+	<context-param>
+    	<param-name>contextConfigLocation</param-name>
+     	<param-value>
+     		/WEB-INF/woosh-application-ds.xml
+     		/WEB-INF/woosh-spring-security.xml
+     	</param-value>
+	</context-param>
+
+	<session-config>
+    	<session-timeout>720</session-timeout>		<!-- session timeout is 12 hours -->
+	</session-config>
+
+	<servlet>
+        <servlet-name>woosh</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+	<listener>
+    	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+	
+	<servlet-mapping>
+        <servlet-name>woosh</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+	<!-- filter to open a Hibernate session for every request -->
+	<filter>
+    	<filter-name>hibernateFilter</filter-name>
+        <filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+    </filter>        
+
+	<filter-mapping>
+		<filter-name>hibernateFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>    
+   	 
+	<!-- filter to apply security checks -->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

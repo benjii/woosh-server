@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       					   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+						   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+						   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+						   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+
+	<context:property-placeholder location="classpath:database.properties" />
+	<util:properties id="s3Properties" location="classpath:config.properties" />
+        
+	<!-- enable annotation driven controllers, validation etc... -->
+	<mvc:annotation-driven />
+
+	<!-- URL mappings -->
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<bean class="org.springframework.web.context.request.Log4jNestedDiagnosticContextInterceptor">
+					<property name="includeClientInfo" value="true" />
+				</bean>
+			</list>
+		</property>
+		<property name="mappings">
+			<value>
+
+				<!--
+					URL to (annotated) controller definitions. For these URLs, the
+					mappings will generally be of the form;
+
+					/<sec_group>/<entity>/<function_group> While developer's should
+					endeavour to maintain the general form, it is a free-form system to
+					define end-points.
+				-->
+
+				<!-- web channel controllers (if the application has a user-accessible web presence) -->
+				<!-- 
+				/*=homeController
+				-->
+
+				<!-- mobile channel controllers (should only ever be the synchronization service under normal conditions) -->
+				<!-- 
+				/m/sync/*=syncController
+				-->				
+
+			</value>
+		</property>
+	</bean>
+
+	<!--
+		packages to scan for annotated Spring components (controllers, etc)
+	-->
+
+	<context:annotation-config />
+
+	<context:component-scan base-package="com.luminos.woosh.controller" />
+	<context:component-scan base-package="com.luminos.woosh.dao" />
+	<context:component-scan base-package="com.luminos.woosh.dao.hibernate" />
+	<context:component-scan base-package="com.luminos.woosh.synchronization.service" />
+	<context:component-scan base-package="com.luminos.woosh.synchronization.service.s3" />
+
+	<!-- freemarker config -->
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/pages/" />
+	</bean>
+ 
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".f" />
+
+		<!--
+			if you want to use the Spring FreeMarker macros, set this property to
+			true
+		-->
+		<property name="exposeSpringMacroHelpers" value="true" />
+	</bean>
+
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+</beans>
