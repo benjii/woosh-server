@@ -74,12 +74,19 @@ public interface GenericLuminosDao<T> {
 	List<T> findAll();
 
 	/**
-	 * Returns the total number of instances of an entity.
+	 * Returns the total number of non-deleted instances of an entity.
 	 * 
 	 * @return
 	 */
 	Integer count();
-	
+
+	/**
+	 * Returns the total number of instances of an entity, including deleted ones.
+	 * 
+	 * @return
+	 */
+	Integer countAll();
+
 	/**
 	 * 
 	 * @param uuid

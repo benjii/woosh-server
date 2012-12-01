@@ -10,11 +10,8 @@
 	<security:http auto-config="true" entry-point-ref="luminosAuthenticationEntryPoint">
 
 		<!-- the login page is unauthenticated -->
-		<!--
-		<security:intercept-url pattern="/login.p" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/usermanual/get" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/m/accounts/**/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		 -->
+		<security:intercept-url pattern="/login.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/home.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
 		<!-- all root-level pages are protected -->
 		<security:intercept-url pattern="/*" access="ROLE_USER" />

@@ -88,6 +88,12 @@ public class GenericLuminosDaoHibernateImpl<T> implements GenericLuminosDao<T> {
 		 							 .uniqueResult();
 	}
 
+	public Integer countAll() {
+		return (Integer) getSession().createCriteria(this.getGenericClass())
+		 							 .setProjection(Projections.count("id"))
+		 							 .uniqueResult();
+	}
+
 	public Boolean exists(String id) {
 		return this.findById(id) != null;
 	}
