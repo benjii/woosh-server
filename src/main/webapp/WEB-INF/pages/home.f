@@ -15,7 +15,7 @@
 			font-family:helvetica;
 		}
 
-		#statistics {
+		#copy {
 		  	width: 600px ;
 		  	margin-left: auto ;
 		 	margin-right: auto ;
@@ -29,7 +29,7 @@
 		  	width: 800px ;
 		  	margin-left: auto ;
 		 	margin-right: auto ;
-		 	margin-top: 150px ;
+		 	margin-top: 100px ;
 			text-align:center;
 			font-size:9pt;
 			font-family:helvetica;
@@ -44,7 +44,7 @@
 <body>
 	<div id='header'>Woosh Server</div>
 
-	<div id='statistics'>
+	<div id='copy'>
 		<p>Users have created ${full_card_count} cards, of which ${card_count} are currently active (non-deleted).</p>
 		<p>Collectively, those cards have been offered ${offer_count} times.</p>
 		<p>Those offers have been acepted ${acceptance_count} times.</p>
@@ -53,6 +53,10 @@
 
 	<div id='gfx'>
 		<p><i>this is where the gfx are going to go</p></i>
+	</div>
+
+	<div id='copy'>
+		<p>Developer? Click <a href="developer">here</a> to find out about the API.</i>
 	</div>
 	
 </body>

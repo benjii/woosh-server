@@ -11,11 +11,12 @@
 
 		<!-- the root, login, and home pages are unauthenticated -->
 		<security:intercept-url pattern="/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/login.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/home.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/home" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
 		<!-- everything else requires (at least) the user authority -->
 		<!-- security:intercept-url pattern="/*" access="ROLE_USER" / -->
+		<security:intercept-url pattern="/m/*" access="ROLE_USER" />
 		<security:intercept-url pattern="/members/*" access="ROLE_USER" />
 				 	
 		<!-- the logout page is protected (you must have been logged in to be able to log out) -->

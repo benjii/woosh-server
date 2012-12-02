@@ -52,6 +52,12 @@ public class HomeController extends AbstractLuminosController {
 		return mav;
 	}
 
+	@RequestMapping(value={ "/developer" }, method=RequestMethod.GET)
+	@Secured({ "ROLE_USER" })
+	public ModelAndView developer() {
+		return new ModelAndView("developer");
+	}
+
 	@RequestMapping(value="/login", method=RequestMethod.GET)
 	public ModelAndView login(@RequestParam(required=false) final String err, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("login");
