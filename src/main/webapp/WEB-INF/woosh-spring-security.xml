@@ -9,13 +9,14 @@
 	
 	<security:http auto-config="true" entry-point-ref="luminosAuthenticationEntryPoint">
 
-		<!-- the login page is unauthenticated -->
+		<!-- the root, login, and home pages are unauthenticated -->
+		<security:intercept-url pattern="/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/login.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/home.f" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
-		<!-- all root-level pages are protected -->
-		<security:intercept-url pattern="/*" access="ROLE_USER" />
-		<security:intercept-url pattern="/**/*" access="ROLE_USER" />
+		<!-- everything else requires (at least) the user authority -->
+		<!-- security:intercept-url pattern="/*" access="ROLE_USER" / -->
+		<security:intercept-url pattern="/members/*" access="ROLE_USER" />
 				 	
 		<!-- the logout page is protected (you must have been logged in to be able to log out) -->
 		<!--		

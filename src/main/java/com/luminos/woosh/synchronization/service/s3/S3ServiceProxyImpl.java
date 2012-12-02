@@ -34,7 +34,7 @@ public class S3ServiceProxyImpl implements CloudServiceProxy {
 	
 	private static final Integer URL_EXPIRY_MINS = 20;								// the default S3 signed URL expiry time (in minutes)
 	
-	private static final String DEFAULT_BUCKET_LOCATION = "ap-southeast-1";			// Singapore 
+//	private static final String DEFAULT_BUCKET_LOCATION = "ap-southeast-1";			// Singapore 
 	
 	
 	private AWSCredentials AWS_CREDENTIALS = null;
@@ -63,9 +63,9 @@ public class S3ServiceProxyImpl implements CloudServiceProxy {
 			S3_SERVICE_PROXY = new RestS3Service(AWS_CREDENTIALS);
 			
 			// this call forces an initial authentication and key pass with the S3 servers
-			S3_SERVICE_PROXY.getOrCreateBucket(this.bucketName, DEFAULT_BUCKET_LOCATION);
+			S3_SERVICE_PROXY.getOrCreateBucket(this.bucketName /*, DEFAULT_BUCKET_LOCATION */);
 			
-			LOGGER.info("Successfully logged into SiFourteen S3 account.");
+			LOGGER.info("Successfully logged into Woosh S3 account.");
 			
 		} catch (S3ServiceException ex) {
 			LOGGER.info("S3 error code: " + ex.getS3ErrorCode());
