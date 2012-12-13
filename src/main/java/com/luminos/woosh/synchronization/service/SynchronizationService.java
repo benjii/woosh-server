@@ -186,15 +186,20 @@ public class SynchronizationService {
 							SynchronizationSerializer ss = f.getAnnotation(SynchronizationSerializer.class);
 							entityDefinition.addFieldDefinition(f.getName(), ss.reportedSchemaType());
 						}
+						
 						else if ( RemoteBinaryObject.class.isAssignableFrom(f.getType()) ) {
 							entityDefinition.addFieldDefinition(f.getName(), "Binary (Attachment ID)");							
-						}
-						else if ( f.isAnnotationPresent(Synchronizable.class) ) {
+						
+						} else if ( f.getType().isAnnotationPresent(Synchronizable.class) ) {
 						
 							// if the field is a type that is another synchronizable entity then we return String
 							// as the type in the schema - the client will pass client ID
-							entityDefinition.addFieldDefinition(f.getName(), "String");
+							entityDefinition.addFieldDefinition(f.getName(), "String (ID of associated entity)");
 						
+						} else if ( Collection.class.isAssignableFrom(f.getType()) || Array.class.isAssignableFrom(f.getType())  ) {
+							// do nothing - we don't include lists in the schema definitions
+						} else if ( f.isEnumConstant()  ) {
+							entityDefinition.addFieldDefinition(f.getName(), "Enumeration: " + f.getType().getSimpleName());
 						} else {
 							entityDefinition.addFieldDefinition(f.getName(), f.getType().getSimpleName());
 						}

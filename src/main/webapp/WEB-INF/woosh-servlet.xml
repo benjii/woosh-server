@@ -65,6 +65,18 @@
 	<context:component-scan base-package="com.luminos.woosh.synchronization.service" />
 	<context:component-scan base-package="com.luminos.woosh.synchronization.service.s3" />
 
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+ 		<property name="messageConverters">
+       		<list>
+           		<ref bean="jsonConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+		<property name="supportedMediaTypes" value="application/json" />
+	</bean>
+
 	<!-- freemarker config -->
 	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
 		<property name="templateLoaderPath" value="/WEB-INF/pages/" />
