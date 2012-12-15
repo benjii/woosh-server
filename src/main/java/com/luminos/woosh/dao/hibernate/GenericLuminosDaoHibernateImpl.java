@@ -13,6 +13,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
 import com.luminos.woosh.dao.GenericLuminosDao;
+import com.luminos.woosh.domain.common.User;
 
 /**
  * 
@@ -78,6 +79,14 @@ public class GenericLuminosDaoHibernateImpl<T> implements GenericLuminosDao<T> {
 	public List<T> findAll() {
 		return (List<T>) getSession().createCriteria(this.getGenericClass())
 									 .add(RECORD_IS_NOT_DELETED)
+									 .list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<T> findAll(User user) {
+		return (List<T>) getSession().createCriteria(this.getGenericClass())
+									 .add(RECORD_IS_NOT_DELETED)
+									 .add(Restrictions.eq("owner", user))
 									 .list();
 	}
 

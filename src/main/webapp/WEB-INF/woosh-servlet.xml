@@ -62,6 +62,7 @@
 	<context:component-scan base-package="com.luminos.woosh.controller" />
 	<context:component-scan base-package="com.luminos.woosh.dao" />
 	<context:component-scan base-package="com.luminos.woosh.dao.hibernate" />
+	<context:component-scan base-package="com.luminos.woosh.services" />
 	<context:component-scan base-package="com.luminos.woosh.synchronization.service" />
 	<context:component-scan base-package="com.luminos.woosh.synchronization.service.s3" />
 

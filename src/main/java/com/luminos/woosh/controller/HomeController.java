@@ -52,10 +52,16 @@ public class HomeController extends AbstractLuminosController {
 		return mav;
 	}
 
-	@RequestMapping(value={ "/developer" }, method=RequestMethod.GET)
+	@RequestMapping(value={ "/syncsvc" }, method=RequestMethod.GET)
 	@Secured({ "ROLE_USER" })
-	public ModelAndView developer() {
-		return new ModelAndView("developer");
+	public ModelAndView synchronizationService() {
+		return new ModelAndView("syncsvc");
+	}
+
+	@RequestMapping(value={ "/restapi" }, method=RequestMethod.GET)
+	@Secured({ "ROLE_USER" })
+	public ModelAndView restfulApi() {
+		return new ModelAndView("restapi");
 	}
 
 	@RequestMapping(value="/login", method=RequestMethod.GET)

@@ -56,7 +56,7 @@
 	</div>
 
 	<div id='copy'>
-		<p>Developer? Click <a href="developer">here</a> to find out about the API.</i>
+		<p>Developer? Click <a href="restapi">here</a> to find out about the API.</i>
 	</div>
 	
 </body>

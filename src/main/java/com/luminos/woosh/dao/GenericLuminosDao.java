@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.luminos.woosh.domain.common.User;
+
 /**
  * 
  * @author Ben
@@ -72,6 +74,13 @@ public interface GenericLuminosDao<T> {
 	 * @return
 	 */
 	List<T> findAll();
+
+	/**
+	 * 
+	 * @param user
+	 * @return
+	 */
+	List<T> findAll(User user);
 
 	/**
 	 * Returns the total number of non-deleted instances of an entity.
