@@ -18,6 +18,9 @@
 	<!-- enable annotation driven controllers, validation etc... -->
 	<mvc:annotation-driven />
 
+	<!-- static resources -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
 	<!-- URL mappings -->
 	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="interceptors">

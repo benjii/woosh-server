@@ -52,6 +52,14 @@
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Parameters:</b>&nbsp;id</p>
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Response:</b>&nbsp;200 (OK) if found, 404 (NOT_FOUND) otherwise</p>
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Example:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/card/123456</p>
+		<p><b><h2>Card Data</h2></b></p>
+		<p><i>Note that there are no card data list methods - card data is provided on the listing methods for cards.</i></p>
+		<p><b><h3>Adding Data To A Card</h3></b></p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>URL:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/card/data</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Method:</b>&nbsp;POST</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Parameters:</b>&nbsp;card-id, name, value, type [BIN,TXT]</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Response:</b>&nbsp;200 (OK) if data added to card, 404 (NOT_FOUND) is card ID not found</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Example:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/card/data/cardId=123456&name=Foo&value=Bar&type=TXT</p>
 		<p><b><h2>Offers</h2></b></p>
 		<p><b><h3>Create A New Offer</h3></b></p>
 	</div>

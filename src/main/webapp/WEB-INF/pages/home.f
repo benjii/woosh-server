@@ -9,7 +9,7 @@
 		  	width: 400px ;
 		  	margin-left: auto ;
 		 	margin-right: auto ;
-		 	margin-top: 75px ;
+		 	margin-top: 15px ;
 			text-align:center;
 			font-size:20pt;
 			font-family:helvetica;
@@ -19,7 +19,7 @@
 		  	width: 600px ;
 		  	margin-left: auto ;
 		 	margin-right: auto ;
-		 	margin-top: 75px ;
+		 	margin-top: 35px ;
 			text-align:center;
 			font-size:11pt;
 			font-family:helvetica;
@@ -29,7 +29,7 @@
 		  	width: 800px ;
 		  	margin-left: auto ;
 		 	margin-right: auto ;
-		 	margin-top: 100px ;
+		 	margin-top: 50px ;
 			text-align:center;
 			font-size:9pt;
 			font-family:helvetica;
@@ -52,7 +52,7 @@
 	</div>
 
 	<div id='gfx'>
-		<p><i>this is where the gfx are going to go</p></i>
+		<img src="/woosh/resources/demo01_30fps_64colours.gif" alt="Woosh" width="480" height="360">
 	</div>
 
 	<div id='copy'>

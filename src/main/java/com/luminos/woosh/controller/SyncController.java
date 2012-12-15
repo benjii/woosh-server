@@ -520,7 +520,7 @@ public class SyncController extends AbstractLuminosController {
 	
 	
 	/**
-	 * Registers a request binder so that we can recieve binary data (photographs, etc) from the client devices.Ø
+	 * Registers a request binder so that we can receive binary data (photographs, etc) from the client devices.Ø
 	 * 
 	 * @param binder
 	 */
