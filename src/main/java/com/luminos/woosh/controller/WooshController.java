@@ -1,6 +1,9 @@
 package com.luminos.woosh.controller;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,19 +28,32 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.luminos.woosh.beans.CardBean;
+import com.luminos.woosh.beans.OfferBean;
+import com.luminos.woosh.beans.Receipt;
+import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.CardDataDao;
+import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.dao.RemoteBinaryObjectDao;
+import com.luminos.woosh.dao.ScanDao;
+import com.luminos.woosh.dao.UserDao;
+import com.luminos.woosh.domain.Acceptance;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.CardData;
+import com.luminos.woosh.domain.Offer;
+import com.luminos.woosh.domain.Scan;
 import com.luminos.woosh.domain.common.RemoteBinaryObject;
+import com.luminos.woosh.domain.common.User;
 import com.luminos.woosh.exception.EntityNotFoundException;
 import com.luminos.woosh.exception.RequestProcessingException;
 import com.luminos.woosh.services.BeanConverterService;
 import com.luminos.woosh.synchronization.service.CloudServiceProxy;
+import com.luminos.woosh.util.GeoSpatialUtils;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO secure this controller - at the moment everything is available to anonymous users (public)
+ * TODO for the more complex multi-step methods refactor into a (transactionalised) service class
  * 
  * @author Ben
  */
@@ -52,7 +68,19 @@ public class WooshController extends AbstractLuminosController {
 	
 	@Autowired
 	private CardDataDao cardDataDao = null;
-	
+
+	@Autowired
+	private OfferDao offerDao = null;
+
+	@Autowired
+	private ScanDao scanDao = null;
+
+	@Autowired
+	private AcceptanceDao acceptanceDao = null;
+
+	@Autowired
+	private UserDao userDao = null;
+
 	@Autowired
 	private RemoteBinaryObjectDao remoteBinaryObjectDao = null;
 	
@@ -66,14 +94,17 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/card", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public void addCard(@RequestBody String name) {
+	public Receipt addCard(@RequestBody String name) {
 		LOGGER.info("Creating new card named '" + name + "' for user: " + super.getUser().getUsername());
 		
 		// create the new card for the user
 		Card newCard = new Card(super.getUser(), name);
 		cardDao.save(newCard);
 		
-		LOGGER.info("Successfully saved card.");		
+		LOGGER.info("Successfully saved card.");
+		
+		// return a receipt to the client
+		return new Receipt(newCard.getClientId());
 	}
 
 	@RequestMapping(value="/card/data", method=RequestMethod.POST)
@@ -81,6 +112,8 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseBody
 	public void addCardData(@RequestBody String cardId, @RequestBody String name, @RequestBody String value,
 							@RequestBody String type, HttpServletRequest request) {
+
+		// TODO refactor into (transactionalised) service class
 
 		Card card = cardDao.findByClientId(cardId);
 		CardData data = null;
@@ -150,6 +183,97 @@ public class WooshController extends AbstractLuminosController {
 		List<Card> cards = cardDao.findAll(super.getUser());
 
 		return beanConverterService.convertCards(cards);
+	}
+
+	@RequestMapping(value="/offer", method=RequestMethod.POST)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public void makeOffer(@RequestBody String cardId, @RequestBody Integer duration,
+						  @RequestBody Double latitude, @RequestBody Double longitude,
+						  @RequestBody Boolean autoAccept) {
+
+		// TODO refactor into (transactionalised) service class
+		
+		LOGGER.info("Creating new offer for card '" + cardId + "' for user: " + super.getUser().getUsername());
+		
+		// look up the card
+		Card card = cardDao.findByClientId(cardId, super.getUser());
+		
+		if (card == null) {
+			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
+		}
+		
+		// create the point geometry
+		Geometry offerRegion = GeoSpatialUtils.createPoint(latitude, longitude);
+		
+		// create and save the offer
+		Offer offer = new Offer(super.getUser(), card, offerRegion, autoAccept);
+		offerDao.save(offer);
+		
+		LOGGER.info("Successfully created offer.");		
+	}
+
+	@RequestMapping(value="/offers", method=RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public List<OfferBean> findOffers(@RequestBody Double latitude, @RequestBody Double longitude) {
+		
+		// TODO refactor into (transactionalised) service class
+
+		User user = super.getUser();
+		
+		LOGGER.info("Scanning for offers at location (" + latitude + "," + longitude + ") for user: " + user.getUsername());
+
+		// record the location and time of the offer scan (we don't do anything with this data, it's just for historical purposes)
+		Scan scan = new Scan(user, GeoSpatialUtils.createPoint(latitude, longitude));
+		scanDao.save(scan);
+		
+		// scan for offers
+		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan);
+
+		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + latitude + "," + longitude + ")");
+
+		// convert each of the offers into beans and return to the user
+		List<OfferBean> beans = new ArrayList<OfferBean>();
+		for (Offer offer : availableOffers) {
+			
+			// for every offer we;
+			//  a) clone the offered card;
+			//  b) record an acceptance on the card (if it is auto-accept);
+			//  c) create an offer bean (with the bean version of the cloned card);
+			//  d) return the full list to the client
+			
+			// clone the card
+			Card cardForOffer = offer.getCard().clone(user);
+			cardDao.save(cardForOffer);
+			
+			// create the relevant acceptance entity
+			Acceptance acceptance = null;
+			if (offer.getAutoAccept()) {
+				acceptance = new Acceptance(user, cardForOffer, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
+			} else {
+				acceptance = new Acceptance(user, cardForOffer, offer);				
+			}
+			acceptanceDao.save(acceptance);
+			
+			// record the offered card and the offer itself on the scan
+			scan.addCard(cardForOffer);
+			scan.addOffer(offer);
+			scanDao.save(scan);
+			
+			// recard all of this against the user
+			user.addCard(cardForOffer);
+			user.addAcceptance(acceptance);
+			user.addScan(scan);
+			
+			// now convert the offer and card to beans
+			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);
+			OfferBean bean = new OfferBean(offer.getClientId(), cardForOfferBean);
+
+			beans.add(bean);
+		}
+		
+		return beans;
 	}
 
 	

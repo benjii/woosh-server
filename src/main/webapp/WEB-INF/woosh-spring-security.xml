@@ -21,6 +21,7 @@
 
 		<security:intercept-url pattern="/card/**/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/cards/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/offers/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 				 	
 		<!-- the logout page is protected (you must have been logged in to be able to log out) -->
 		<!--		

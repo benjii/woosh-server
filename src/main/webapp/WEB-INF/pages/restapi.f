@@ -62,6 +62,17 @@
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Example:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/card/data/cardId=123456&name=Foo&value=Bar&type=TXT</p>
 		<p><b><h2>Offers</h2></b></p>
 		<p><b><h3>Create A New Offer</h3></b></p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>URL:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/offer</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Method:</b>&nbsp;POST</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Parameters:</b>&nbsp;cardId, duration, latitude, longitude, autoAccept</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Response:</b>&nbsp;200 (OK)</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Example:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/offer&amp;cardId=123456&amp;duration=6000&amp;latitude=0.15&amp;longitude=122.2&amp;autoAccept=true</p>
+		<p><b><h3>List All Available Offers At A Location</h3></b></p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>URL:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/offers</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Method:</b>&nbsp;GET</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Parameters:</b>&nbsp;latitude, longitude</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Response:</b>&nbsp;200 (OK)</p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Example:</b>&nbsp;http://&lt;server_endpoint&gt;/woosh/offers?latitude=0.15&amp;longitude=122.2</p>
 	</div>
 		
 </body>

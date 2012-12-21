@@ -106,6 +106,11 @@ public class Offer implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offerRegion = offerRegion;
 	}
 
+	public Offer(User owner, Card card, Geometry offerRegion, Boolean autoAccept) {
+		this(owner, card, offerRegion);
+		this.autoAccept = autoAccept;
+	}
+
 	public Offer(User owner, Card card, Integer offerDuration, Geometry offerRegion) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.MILLISECOND, offerDuration);
@@ -116,38 +121,11 @@ public class Offer implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offerRegion = offerRegion;
 	}
 
-//	public Offer(User owner, Card card, Offer originalOffer, Integer maximumAccepts, 
-//				 Integer remainingHops, Timestamp offerStart, Timestamp offerEnd, 
-//				 Geometry offerRegion, Boolean autoAccept) {
-//
-//		this.owner = owner;
-//		this.card = card;
-//		this.originalOffer = originalOffer;
-//		this.maximumAccepts = maximumAccepts;
-//		this.remainingHops = remainingHops;
-//		this.offerStart = offerStart;
-//		this.offerEnd = offerEnd;
-//		this.offerRegion = offerRegion;
-//		this.autoAccept = autoAccept;
-//		
-//		this.accepted = ( this.autoAccept ? Boolean.TRUE : Boolean.FALSE );
-//	}
+	public Offer(User owner, Card card, Integer offerDuration, Geometry offerRegion, Boolean autoAccept) {
+		this(owner, card, offerDuration, offerRegion);
+		this.autoAccept = autoAccept;
+	}
 
-//	/**
-//	 * Clones an offer for a user.
-//	 * 
-//	 * Offers are cloned so that every user gets their own copy of an offer - this is so that user-specific data
-//	 * on the offer can be effectively tracked (e.g.: redemption counts, etc).
-//	 * 
-//	 * @param other
-//	 * @param user
-//	 * @return
-//	 */
-//	public Offer clone(User user) {
-//		return new Offer(user, this.getCard().clone(user), this, this.getMaximumAccepts(), this.remainingHops - 1,
-//						 this.getOfferStart(), this.getOfferEnd(), this.getOfferRegion(), this.getAutoAccept());
-//	}
-	
 
 	public String getId() {
 		return id;
