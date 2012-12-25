@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luminos.woosh.base.AbstractLuminosIntegrationTest;
-import com.luminos.woosh.beans.OfferBean;
+import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.OfferDao;
@@ -86,7 +86,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		assertEquals(1, super.countRowsInTable("Offer"));
 
 		// now scan for the offer
-		List<OfferBean> availableOffers = wooshController.findOffers(0.15D, 122.2D);
+		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D);
 		
 		assertEquals(1, super.countRowsInTable("Scan"));
 		assertEquals(1, super.countRowsInTable("Acceptance"));

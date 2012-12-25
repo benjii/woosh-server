@@ -1,9 +1,5 @@
 package com.luminos.woosh.controller;
 
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,28 +24,25 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.luminos.woosh.beans.CardBean;
-import com.luminos.woosh.beans.OfferBean;
+import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.CardDataDao;
 import com.luminos.woosh.dao.OfferDao;
-import com.luminos.woosh.dao.RemoteBinaryObjectDao;
 import com.luminos.woosh.dao.ScanDao;
 import com.luminos.woosh.dao.UserDao;
-import com.luminos.woosh.domain.Acceptance;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.CardData;
 import com.luminos.woosh.domain.Offer;
-import com.luminos.woosh.domain.Scan;
-import com.luminos.woosh.domain.common.RemoteBinaryObject;
 import com.luminos.woosh.domain.common.User;
 import com.luminos.woosh.exception.EntityNotFoundException;
 import com.luminos.woosh.exception.RequestProcessingException;
 import com.luminos.woosh.services.BeanConverterService;
-import com.luminos.woosh.synchronization.service.CloudServiceProxy;
+import com.luminos.woosh.services.WooshServices;
 import com.luminos.woosh.util.GeoSpatialUtils;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * TODO secure this controller - at the moment everything is available to anonymous users (public)
@@ -80,12 +73,9 @@ public class WooshController extends AbstractLuminosController {
 
 	@Autowired
 	private UserDao userDao = null;
-
+		
 	@Autowired
-	private RemoteBinaryObjectDao remoteBinaryObjectDao = null;
-	
-	@Autowired
-	private CloudServiceProxy cloudServiceProxy = null;
+	private WooshServices wooshServices = null;
 	
 	@Autowired
 	private BeanConverterService beanConverterService = null;
@@ -110,57 +100,40 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/card/data", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public void addCardData(@RequestBody String cardId, @RequestBody String name, @RequestBody String value,
+	public Receipt addCardData(@RequestBody String cardId, @RequestBody String name, @RequestBody String value,
 							@RequestBody String type, HttpServletRequest request) {
 
-		// TODO refactor into (transactionalised) service class
+		LOGGER.info("Adding data to card " + cardId + " (name=" + name + ", value=" + value + ").");
 
-		Card card = cardDao.findByClientId(cardId);
 		CardData data = null;
-
-		// if we can't find the card then fault
-		if (card == null) {
-			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
-		}
 		
-		LOGGER.info("Adding data to card '" + card.getName() + "' for user: " + super.getUser().getUsername());
-		
+		// perform an action depending on what type of data is being attached to the card
 		if (StringUtils.equalsIgnoreCase(type, "BIN") && request instanceof DefaultMultipartHttpServletRequest ) {
 			
-			// this is a binary card data item - the 'data' parameter is the ID of the attached multi-part file
-			MultiValueMap<String, MultipartFile> attachments = ((DefaultMultipartHttpServletRequest) request).getMultiFileMap();			
+			// this is a binary data attachment (photograph or similar) - call the data service to upload to S3
+			MultiValueMap<String, MultipartFile> attachments = ((DefaultMultipartHttpServletRequest) request).getMultiFileMap();
 			
-			try {
-				byte[] binaryItem = attachments.get(value).get(0).getBytes();
-				RemoteBinaryObject rbo = new RemoteBinaryObject(super.getUser(), value);
-				
-				// upload to S3
-				cloudServiceProxy.upload(rbo, binaryItem);
-				
-				// save the remote pointer to the local database
-				remoteBinaryObjectDao.save(rbo);
-				
-				// create the data item
-				data = new CardData(super.getUser(), name, rbo, card);
-				
-			} catch (IOException e) {
-				throw new RequestProcessingException("Could not locate attachment with ID: " + value + ". Bad request?");
+			// check to see if the binary data was correctly attached to the request
+			if (attachments.get(value) == null || attachments.get(value).size() == 0) {
+				throw new RequestProcessingException("Could not locate binary attachment with ID " + value + ". Bad request?");
 			}
 			
+			// if so, then extract the attachment from the request
+			MultipartFile binary = attachments.get(value).get(0);
 			
-		} else {			
+			// call a service method to upload the binary data to S3, create the card data entity, and attach it to card
+			data = wooshServices.addBinaryDataToCard(cardId, name, super.getUser(), binary);
 			
-			// this is a non-binary card - simply attach the data and save the card
-			data = new CardData(super.getUser(), name, value, card);
-			cardDataDao.save(data);
+		} else {
+			
+			// this is a non-binary (string or similar) attachment
+			data = wooshServices.addDataToCard(cardId, name, value, super.getUser());
 			
 		}
-
-		// save the card
-		card.addData(data);
-		cardDao.save(card);
 		
 		LOGGER.info("Successfully added card data.");
+		
+		return new Receipt(data.getClientId());
 	}
 
 	@RequestMapping(value="/card/{id}", method=RequestMethod.GET)
@@ -188,92 +161,52 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/offer", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public void makeOffer(@RequestBody String cardId, @RequestBody Integer duration,
+	public Receipt makeOffer(@RequestBody String cardId, @RequestBody Integer duration,
 						  @RequestBody Double latitude, @RequestBody Double longitude,
 						  @RequestBody Boolean autoAccept) {
 
-		// TODO refactor into (transactionalised) service class
-		
 		LOGGER.info("Creating new offer for card '" + cardId + "' for user: " + super.getUser().getUsername());
-		
-		// look up the card
-		Card card = cardDao.findByClientId(cardId, super.getUser());
-		
-		if (card == null) {
-			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
-		}
-		
+
 		// create the point geometry
 		Geometry offerRegion = GeoSpatialUtils.createPoint(latitude, longitude);
-		
-		// create and save the offer
-		Offer offer = new Offer(super.getUser(), card, offerRegion, autoAccept);
-		offerDao.save(offer);
+
+		// create the new offer
+		Offer newOffer = wooshServices.createOffer(cardId, offerRegion, autoAccept, super.getUser());
 		
 		LOGGER.info("Successfully created offer.");		
+		
+		// send a receipt to the client
+		return new Receipt(newOffer.getClientId());
 	}
 
 	@RequestMapping(value="/offers", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public List<OfferBean> findOffers(@RequestBody Double latitude, @RequestBody Double longitude) {
+	public List<CandidateOffer> findOffers(@RequestBody Double latitude, @RequestBody Double longitude) {
 		
-		// TODO refactor into (transactionalised) service class
-
 		User user = super.getUser();
 		
 		LOGGER.info("Scanning for offers at location (" + latitude + "," + longitude + ") for user: " + user.getUsername());
 
-		// record the location and time of the offer scan (we don't do anything with this data, it's just for historical purposes)
-		Scan scan = new Scan(user, GeoSpatialUtils.createPoint(latitude, longitude));
-		scanDao.save(scan);
+		// create the point geometry
+		Point location = GeoSpatialUtils.createPoint(latitude, longitude);
 		
-		// scan for offers
-		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan);
-
-		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + latitude + "," + longitude + ")");
-
-		// convert each of the offers into beans and return to the user
-		List<OfferBean> beans = new ArrayList<OfferBean>();
-		for (Offer offer : availableOffers) {
-			
-			// for every offer we;
-			//  a) clone the offered card;
-			//  b) record an acceptance on the card (if it is auto-accept);
-			//  c) create an offer bean (with the bean version of the cloned card);
-			//  d) return the full list to the client
-			
-			// clone the card
-			Card cardForOffer = offer.getCard().clone(user);
-			cardDao.save(cardForOffer);
-			
-			// create the relevant acceptance entity
-			Acceptance acceptance = null;
-			if (offer.getAutoAccept()) {
-				acceptance = new Acceptance(user, cardForOffer, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-			} else {
-				acceptance = new Acceptance(user, cardForOffer, offer);				
-			}
-			acceptanceDao.save(acceptance);
-			
-			// record the offered card and the offer itself on the scan
-			scan.addCard(cardForOffer);
-			scan.addOffer(offer);
-			scanDao.save(scan);
-			
-			// recard all of this against the user
-			user.addCard(cardForOffer);
-			user.addAcceptance(acceptance);
-			user.addScan(scan);
-			
-			// now convert the offer and card to beans
-			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);
-			OfferBean bean = new OfferBean(offer.getClientId(), cardForOfferBean);
-
-			beans.add(bean);
-		}
+		// scan for offers for the user
+		List<CandidateOffer> availableOffers = wooshServices.findOffers(location, super.getUser());
 		
-		return beans;
+		return availableOffers;
+	}
+
+	@RequestMapping(value="/offer/accept/{id}", method=RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public Receipt acceptOffer(@PathVariable String id, HttpServletResponse response) {
+
+		// accept the offer for the user
+		Offer acceptedOffer = wooshServices.acceptOffer(id, super.getUser());
+		
+		// return a success receipt to the client
+		return new Receipt(acceptedOffer.getClientId());
 	}
 
 	

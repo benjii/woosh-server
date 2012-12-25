@@ -20,13 +20,14 @@ public class OfferDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Offer>
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Offer> findOffersWithinRange(Scan scan) {
-		Criteria criteria = super.getSession().createCriteria(Offer.class);		
+		Criteria criteria = super.getSession().createCriteria(Offer.class);
 
-		// get any offers that are;
+		// get any offers that;
 		//	a) have remaining hops
-		//	b) are 'active' (the current time is within the offer period)
-		//	c) the offer was not made by the user that is scanning
-		//	d) the scan took place within the region of the offer
+		//  b) not already been accepted by the user
+		//	c) are 'active' (the current time is within the offer period)
+		//	d) the offer was not made by the user that is scanning
+		//	e) the scan took place within the region of the offer
 		
 		criteria.add(RECORD_IS_NOT_DELETED)
 				.add(Restrictions.ne("remainingHops", 0))
