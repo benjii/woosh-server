@@ -4,13 +4,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
-import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
-import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CandidateOffer;
+import com.luminos.woosh.beans.CardBean;
+import com.luminos.woosh.beans.CardDataBean;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
@@ -33,11 +31,10 @@ import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.dao.ScanDao;
 import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.Card;
-import com.luminos.woosh.domain.CardData;
 import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.domain.common.User;
+import com.luminos.woosh.enums.CardDataType;
 import com.luminos.woosh.exception.EntityNotFoundException;
-import com.luminos.woosh.exception.RequestProcessingException;
 import com.luminos.woosh.services.BeanConverterService;
 import com.luminos.woosh.services.WooshServices;
 import com.luminos.woosh.util.GeoSpatialUtils;
@@ -80,62 +77,43 @@ public class WooshController extends AbstractLuminosController {
 	@Autowired
 	private BeanConverterService beanConverterService = null;
 	
-	
+
 	@RequestMapping(value="/card", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public Receipt addCard(@RequestBody String name) {
-		LOGGER.info("Creating new card named '" + name + "' for user: " + super.getUser().getUsername());
+	public Receipt addCard(@RequestBody CardBean card, HttpServletRequest request) {
+		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + super.getUser().getUsername());
 		
 		// create the new card for the user
-		Card newCard = new Card(super.getUser(), name);
+		// TODO refactor this so that it's included with the services area (so that it is correctly transactionalised)
+		Card newCard = new Card(super.getUser(), card.getName());
 		cardDao.save(newCard);
+		
+		// now create the card data and associate it with the card
+		if (card.getData() != null) {
+			
+			for (CardDataBean dataBean : card.getData()) {
+				if (dataBean.getType() == CardDataType.BINARY) {
+								
+					// this is binary data - decode it
+					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getBase64BinaryValue());
+					wooshServices.addBinaryDataToCard(newCard.getClientId(), dataBean.getName(), decodedBinary, super.getUser());
+
+				} else {
+					
+					// this is a non-binary (string or similar) attachment
+					wooshServices.addDataToCard(newCard.getClientId(), dataBean.getName(), dataBean.getValue(), super.getUser());					
+					
+				}
+			}
+		}
 		
 		LOGGER.info("Successfully saved card.");
 		
 		// return a receipt to the client
 		return new Receipt(newCard.getClientId());
 	}
-
-	@RequestMapping(value="/card/data", method=RequestMethod.POST)
-	@ResponseStatus(value=HttpStatus.OK)
-	@ResponseBody
-	public Receipt addCardData(@RequestBody String cardId, @RequestBody String name, @RequestBody String value,
-							@RequestBody String type, HttpServletRequest request) {
-
-		LOGGER.info("Adding data to card " + cardId + " (name=" + name + ", value=" + value + ").");
-
-		CardData data = null;
-		
-		// perform an action depending on what type of data is being attached to the card
-		if (StringUtils.equalsIgnoreCase(type, "BIN") && request instanceof DefaultMultipartHttpServletRequest ) {
-			
-			// this is a binary data attachment (photograph or similar) - call the data service to upload to S3
-			MultiValueMap<String, MultipartFile> attachments = ((DefaultMultipartHttpServletRequest) request).getMultiFileMap();
-			
-			// check to see if the binary data was correctly attached to the request
-			if (attachments.get(value) == null || attachments.get(value).size() == 0) {
-				throw new RequestProcessingException("Could not locate binary attachment with ID " + value + ". Bad request?");
-			}
-			
-			// if so, then extract the attachment from the request
-			MultipartFile binary = attachments.get(value).get(0);
-			
-			// call a service method to upload the binary data to S3, create the card data entity, and attach it to card
-			data = wooshServices.addBinaryDataToCard(cardId, name, super.getUser(), binary);
-			
-		} else {
-			
-			// this is a non-binary (string or similar) attachment
-			data = wooshServices.addDataToCard(cardId, name, value, super.getUser());
-			
-		}
-		
-		LOGGER.info("Successfully added card data.");
-		
-		return new Receipt(data.getClientId());
-	}
-
+	
 	@RequestMapping(value="/card/{id}", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody

@@ -12,13 +12,19 @@ public class CardDataBean {
 
 	private CardDataType type = null;
 	
-	private String data = null;
+	private String value = null;
+	
+	private String base64BinaryValue = null;
 
 	
-	public CardDataBean(String name, String data, CardDataType type) {
+	public CardDataBean() {
+		// default constructor required by Spring MVC
+	}
+
+	public CardDataBean(String name, String value, CardDataType type) {
 		this.name = name;
 		this.type = type;
-		this.data = data;
+		this.value = value;
 	}
 
 	
@@ -26,12 +32,32 @@ public class CardDataBean {
 		return name;
 	}
 
-	public String getData() {
-		return data;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public CardDataType getType() {
 		return type;
 	}
-	
+
+	public void setType(CardDataType type) {
+		this.type = type;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public String getBase64BinaryValue() {
+		return base64BinaryValue;
+	}
+
+	public void setBase64BinaryValue(String base64BinaryValue) {
+		this.base64BinaryValue = base64BinaryValue;
+	}
+
 }

@@ -17,6 +17,10 @@ public class CardBean {
 	
 	private List<CardDataBean> data = null;
 
+	
+	public CardBean() {
+		// default constructor required by Spring MVC
+	}
 
 	public CardBean(Card card) {
 		this.id = card.getClientId();
@@ -35,18 +39,30 @@ public class CardBean {
 		}
 		this.data.add(dataBean);
 	}
-	
+
 	
 	public String getId() {
 		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public List<CardDataBean> getData() {
 		return data;
+	}
+
+	public void setData(List<CardDataBean> data) {
+		this.data = data;
 	}
 	
 }

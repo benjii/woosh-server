@@ -1,6 +1,5 @@
 package com.luminos.woosh.services;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,10 +10,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CandidateOffer;
+import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.CardDataDao;
@@ -29,7 +27,6 @@ import com.luminos.woosh.domain.Scan;
 import com.luminos.woosh.domain.common.RemoteBinaryObject;
 import com.luminos.woosh.domain.common.User;
 import com.luminos.woosh.exception.EntityNotFoundException;
-import com.luminos.woosh.exception.RequestProcessingException;
 import com.luminos.woosh.synchronization.service.CloudServiceProxy;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -78,7 +75,7 @@ public class WooshServices {
 	 * @return
 	 */
 	@Transactional
-	public CardData addBinaryDataToCard(String cardId, String name, User user, MultipartFile binary) {
+	public CardData addBinaryDataToCard(String cardId, String name, byte[] binary, User user) {
 		Card card = cardDao.findByClientId(cardId);
 		CardData data = null;
 
@@ -87,23 +84,17 @@ public class WooshServices {
 			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
 		}
 
-		// upload the binary attachment to S3
-		try {
-			byte[] binaryItem = binary.getBytes(); //attachments.get(value).get(0).getBytes();
-			RemoteBinaryObject rbo = new RemoteBinaryObject(user, UUID.randomUUID().toString());
+		// create the remote binary object pointer to store locally
+		RemoteBinaryObject rbo = new RemoteBinaryObject(user, UUID.randomUUID().toString());
 			
-			// upload to S3
-			cloudServiceProxy.upload(rbo, binaryItem);
+		// upload to S3
+		cloudServiceProxy.upload(rbo, binary);
 			
-			// save the remote pointer to the local database
-			remoteBinaryObjectDao.save(rbo);
+		// save the remote pointer to the local database
+		remoteBinaryObjectDao.save(rbo);
 			
-			// create the data item
-			data = new CardData(user, name, rbo, card);
-			
-		} catch (IOException e) {
-			throw new RequestProcessingException("Could not retrieve bytes for binary card data attachment. Bad request?");
-		}
+		// create the data item
+		data = new CardData(user, name, rbo, card);
 
 		// save the card
 		card.addData(data);
