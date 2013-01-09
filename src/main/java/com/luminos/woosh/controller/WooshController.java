@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CardDataBean;
+import com.luminos.woosh.beans.OfferBean;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
@@ -78,7 +80,7 @@ public class WooshController extends AbstractLuminosController {
 	private BeanConverterService beanConverterService = null;
 	
 
-	@RequestMapping(value="/card", method=RequestMethod.POST)
+	@RequestMapping(value="/m/card", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt addCard(@RequestBody CardBean card, HttpServletRequest request) {
@@ -96,7 +98,7 @@ public class WooshController extends AbstractLuminosController {
 				if (dataBean.getType() == CardDataType.BINARY) {
 								
 					// this is binary data - decode it
-					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getBase64BinaryValue());
+					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getValue());
 					wooshServices.addBinaryDataToCard(newCard.getClientId(), dataBean.getName(), decodedBinary, super.getUser());
 
 				} else {
@@ -114,7 +116,7 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newCard.getClientId());
 	}
 	
-	@RequestMapping(value="/card/{id}", method=RequestMethod.GET)
+	@RequestMapping(value="/m/card/{id}", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public CardBean getCard(@PathVariable String id, HttpServletResponse response) {
@@ -127,7 +129,7 @@ public class WooshController extends AbstractLuminosController {
 		return beanConverterService.convertCard(card);		
 	}
 
-	@RequestMapping(value="/cards", method=RequestMethod.GET)
+	@RequestMapping(value="/m/cards", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public List<CardBean> getCardsForUser() {
@@ -136,20 +138,19 @@ public class WooshController extends AbstractLuminosController {
 		return beanConverterService.convertCards(cards);
 	}
 
-	@RequestMapping(value="/offer", method=RequestMethod.POST)
+	@RequestMapping(value="/m/offer", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public Receipt makeOffer(@RequestBody String cardId, @RequestBody Integer duration,
-						  @RequestBody Double latitude, @RequestBody Double longitude,
-						  @RequestBody Boolean autoAccept) {
+	public Receipt makeOffer(@RequestBody OfferBean offer) {
 
-		LOGGER.info("Creating new offer for card '" + cardId + "' for user: " + super.getUser().getUsername());
+		LOGGER.info("Creating new offer for card '" + offer.getCardId() + "' for user: " + super.getUser().getUsername());
 
 		// create the point geometry
-		Geometry offerRegion = GeoSpatialUtils.createPoint(latitude, longitude);
+		Geometry offerRegion = GeoSpatialUtils.createPoint(offer.getLatitude(), offer.getLongitude());
 
 		// create the new offer
-		Offer newOffer = wooshServices.createOffer(cardId, offerRegion, autoAccept, super.getUser());
+		Offer newOffer = wooshServices.createOffer(offer.getCardId(), offer.getDuration(), offerRegion,
+												   offer.getAutoAccept(), super.getUser());
 		
 		LOGGER.info("Successfully created offer.");		
 		
@@ -157,10 +158,10 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newOffer.getClientId());
 	}
 
-	@RequestMapping(value="/offers", method=RequestMethod.GET)
+	@RequestMapping(value="/m/offers", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public List<CandidateOffer> findOffers(@RequestBody Double latitude, @RequestBody Double longitude) {
+	public List<CandidateOffer> findOffers(@RequestParam Double latitude, @RequestParam Double longitude) {
 		
 		User user = super.getUser();
 		
@@ -175,7 +176,7 @@ public class WooshController extends AbstractLuminosController {
 		return availableOffers;
 	}
 
-	@RequestMapping(value="/offer/accept/{id}", method=RequestMethod.GET)
+	@RequestMapping(value="/m/offer/accept/{id}", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt acceptOffer(@PathVariable String id, HttpServletResponse response) {

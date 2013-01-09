@@ -12,9 +12,11 @@ public class CardDataBean {
 
 	private CardDataType type = null;
 	
+	// if type == TEXT then this is a literal value
+	// if type == BINARY then this is a base64 encoded value
 	private String value = null;
 	
-	private String base64BinaryValue = null;
+//	private String base64BinaryValue = null;
 
 	
 	public CardDataBean() {
@@ -52,12 +54,12 @@ public class CardDataBean {
 		this.value = value;
 	}
 
-	public String getBase64BinaryValue() {
-		return base64BinaryValue;
-	}
-
-	public void setBase64BinaryValue(String base64BinaryValue) {
-		this.base64BinaryValue = base64BinaryValue;
-	}
+//	public String getBase64BinaryValue() {
+//		return base64BinaryValue;
+//	}
+//
+//	public void setBase64BinaryValue(String base64BinaryValue) {
+//		this.base64BinaryValue = base64BinaryValue;
+//	}
 
 }

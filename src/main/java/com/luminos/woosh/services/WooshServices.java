@@ -141,7 +141,7 @@ public class WooshServices {
 	 * @return
 	 */
 	@Transactional
-	public Offer createOffer(String cardId, Geometry location, Boolean autoAccept, User user) {
+	public Offer createOffer(String cardId, Integer duration, Geometry location, Boolean autoAccept, User user) {
 		Card card = cardDao.findByClientId(cardId, user);
 		
 		if (card == null) {
@@ -149,7 +149,7 @@ public class WooshServices {
 		}
 				
 		// create and save the offer
-		Offer offer = new Offer(user, card, location, autoAccept);
+		Offer offer = new Offer(user, card, duration, location, autoAccept);
 		offerDao.save(offer);
 		
 		return offer;

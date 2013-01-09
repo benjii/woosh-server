@@ -35,7 +35,7 @@ public abstract class AbstractLuminosController {
 	@ModelAttribute("user")
 	protected User getUser() {
 		return ( this.isUserAuthenticated() ? (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-											: userDao.findByUsername("ben.deany") );	// VERY TEMPORARY			
+											: User.ANONYMOUS_USER );			
 	}
 	
 //	@ModelAttribute("roles")

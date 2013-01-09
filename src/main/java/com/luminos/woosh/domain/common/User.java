@@ -35,6 +35,8 @@ public class User implements UserDetails, Comparable<User> {
 
 	private static final long serialVersionUID = 2667226600487694113L;
 
+	public static final User ANONYMOUS_USER = new User("anonymous-user");	
+
 	
 	@Id
 	@GeneratedValue(generator="default")
@@ -95,6 +97,10 @@ public class User implements UserDetails, Comparable<User> {
 		
 	}
 
+	private User(String username) {
+		this.username = username;
+	}
+	
 	public User(String username, String password, String email) {
 		this.username = username;
 		this.password = password;
