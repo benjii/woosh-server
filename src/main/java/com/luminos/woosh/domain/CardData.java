@@ -85,10 +85,24 @@ public class CardData implements WritableSynchronizationEntity, UserScopedEntity
 		this.binaryData = data;
 		this.card = card;
 	}
-	
 
+	public CardData(User owner, String name, String data, RemoteBinaryObject binaryData, Card card) {
+		this.owner = owner;
+		this.name = name;
+		this.data = data;
+		this.binaryData = binaryData;
+		this.card = card;
+	}
+
+
+	/**
+	 * 
+	 * @param card
+	 * @param user
+	 * @return
+	 */
 	public CardData clone(Card card, User user) {
-		return new CardData(user, this.name, this.data, card);
+		return new CardData(user, this.name, this.data, this.binaryData, card);
 	}
 	
 
