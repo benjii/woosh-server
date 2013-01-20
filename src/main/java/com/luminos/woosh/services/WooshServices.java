@@ -19,6 +19,7 @@ import com.luminos.woosh.dao.CardDataDao;
 import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.dao.RemoteBinaryObjectDao;
 import com.luminos.woosh.dao.ScanDao;
+import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.Acceptance;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.CardData;
@@ -55,6 +56,9 @@ public class WooshServices {
 	
 	@Autowired
 	private ScanDao scanDao = null;
+	
+	@Autowired
+	private UserDao userDao = null;
 	
 	@Autowired
 	private RemoteBinaryObjectDao remoteBinaryObjectDao = null;
@@ -195,10 +199,14 @@ public class WooshServices {
 			scan.addOffer(offer);
 			scanDao.save(scan);
 			
+			User copyOfUser = userDao.findByUsername(user.getUsername());
+			
 			// record all of this against the user
-			user.addCard(cardForOffer);
-			user.addAcceptance(acceptance);
-			user.addScan(scan);
+			copyOfUser.addCard(cardForOffer);
+			copyOfUser.addAcceptance(acceptance);
+			copyOfUser.addScan(scan);
+			
+			userDao.save(copyOfUser);
 
 			// now convert the offer and card to beans
 			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);

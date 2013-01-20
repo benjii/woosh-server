@@ -71,6 +71,7 @@ insert into users (id, version, username, password, email, accountNonExpired, ac
 	values ('402881e4-3b14d77f-013b-14d78b43-0008', 1, 'tim.macfarlane', '5f4dcc3b5aa765d61d8327deb882cf99', 'tim@woosh.com', true, true, true, true);
 insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
 	values ('402881e4-3b14d77f-013b-14d78b45-0009', 1, 'pete.chong', '5f4dcc3b5aa765d61d8327deb882cf99', 'pete@woosh.com', true, true, true, true);
+		
 	
 insert into users_role (users_id, authorities_id) values ('ff808081-2d11bfc1-012d-11bfd083-0003', 'ff808081-2d11bee6-012d-11bef683-0003');
 
@@ -80,4 +81,8 @@ insert into users_role (users_id, authorities_id) values ('402881e4-3b14d77f-013
 insert into users_role (users_id, authorities_id) values ('402881e4-3b14d77f-013b-14d78b45-0009', 'ff808081-2d11bee6-012d-11bef683-0003');
 
 
+-- insert user record for Thea
+insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
+	values ('402881e4-3c591a48-013c-591a6992-0007', 1, 'thea.hd', '5f4dcc3b5aa765d61d8327deb882cf99', 'thea@woosh.com', true, true, true, true);
+insert into users_role (users_id, authorities_id) values ('402881e4-3c591a48-013c-591a6992-0007', 'ff808081-2d11bee6-012d-11bef683-0003');
 

@@ -47,6 +47,7 @@ public class OfferDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Offer>
 				.add(Restrictions.ne("remainingHops", 0))
 				.add(Restrictions.lt("offerStart", scan.getScannedAt()))
 				.add(Restrictions.gt("offerEnd", scan.getScannedAt()))
+				.add(Restrictions.ne("owner", scan.getOwner()))
 				.add(Restrictions.sqlRestriction("st_distance_spheroid(this_.offerregion, st_geomfromtext('" + scan.getLocation().toText() +"'), 'SPHEROID[\"WGS 84\", 6378137, 298.257223563]') < 300"));
 						
 		List<Offer> availableOffers = (List<Offer>) criteria.list();
