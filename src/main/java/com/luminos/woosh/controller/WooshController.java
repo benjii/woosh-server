@@ -80,6 +80,19 @@ public class WooshController extends AbstractLuminosController {
 	private BeanConverterService beanConverterService = null;
 	
 
+	/**
+	 * This method simply returns a ping response. Clients can use this method to ensure reachability to Woosh servers.
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value="/m/ping", method=RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public String ping(HttpServletRequest request) {
+		LOGGER.info("Received ping from: " + request.getRemoteAddr());
+		return "{ \"status\": \"OK\" }";
+	}
+	
 	@RequestMapping(value="/m/card", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody

@@ -13,10 +13,11 @@
 		<security:intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/home" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/m/ping" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
 		<!-- everything else requires (at least) the user authority -->
-		<!-- security:intercept-url pattern="/*" access="ROLE_USER" / -->
 		<security:intercept-url pattern="/m/*" access="ROLE_USER" />
+
 		<security:intercept-url pattern="/members/*" access="ROLE_USER" />
 
 		<!-- this is likely temporary (allowing anonymous access to methods for web testing only) -->
