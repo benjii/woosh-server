@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,10 @@ import com.luminos.woosh.domain.common.User;
 public class AuthenticationController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(AuthenticationController.class);
+	
+	private static final Integer MINIMUM_USERNAME_LENGTH = 4;
+
+	private static final Integer MINIMUM_PASSWORD_LENGTH = 6;
 
 	
 	@Autowired
@@ -39,6 +44,15 @@ public class AuthenticationController extends AbstractLuminosController {
 						 @RequestParam(required=false) String email) {
 
 		LOGGER.info("User requested sign-up (username='" + username + "').");
+
+		// perform some up-front checks
+		if (StringUtils.isBlank(username) || StringUtils.length(username) <= MINIMUM_USERNAME_LENGTH) {			
+			return "{ \"status\": \"INVALID_USERNAME\" }";
+		}
+
+		if (StringUtils.isBlank(password) || StringUtils.length(password) <= MINIMUM_PASSWORD_LENGTH) {			
+			return "{ \"status\": \"INVALID_PASSWORD\" }";
+		}
 
 		try {
 			
