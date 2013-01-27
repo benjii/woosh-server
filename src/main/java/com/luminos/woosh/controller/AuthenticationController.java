@@ -46,14 +46,25 @@ public class AuthenticationController extends AbstractLuminosController {
 		LOGGER.info("User requested sign-up (username='" + username + "').");
 
 		// perform some up-front checks
+		
+		// check that the username was specified and is of sufficient length
 		if (StringUtils.isBlank(username) || StringUtils.length(username) <= MINIMUM_USERNAME_LENGTH) {			
 			return "{ \"status\": \"INVALID_USERNAME\" }";
 		}
 
+		// check that the password was specified and is of sufficient length
 		if (StringUtils.isBlank(password) || StringUtils.length(password) <= MINIMUM_PASSWORD_LENGTH) {			
 			return "{ \"status\": \"INVALID_PASSWORD\" }";
 		}
 
+		// check that the username is not already taken
+		User existingUser = userDao.findByUsername(username);
+		if (existingUser != null) {
+			return "{ \"status\": \"USERNAME_UNAVAILABLE\" }";			
+		}
+		
+		// if everything checks out then continue
+		
 		try {
 			
 			// hash the password using MD5
