@@ -86,3 +86,9 @@ insert into users (id, version, username, password, email, accountNonExpired, ac
 	values ('402881e4-3c591a48-013c-591a6992-0007', 1, 'thea.hd', '5f4dcc3b5aa765d61d8327deb882cf99', 'thea@woosh.com', true, true, true, true);
 insert into users_role (users_id, authorities_id) values ('402881e4-3c591a48-013c-591a6992-0007', 'ff808081-2d11bee6-012d-11bef683-0003');
 
+-- insert user record for Sally
+insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
+	values ('402881e4-3c786251-013c-78625bd0-0007', 1, 'sally.mac', '5f4dcc3b5aa765d61d8327deb882cf99', 'sally@woosh.com', true, true, true, true);
+insert into users_role (users_id, authorities_id) values ('402881e4-3c786251-013c-78625bd0-0007', 'ff808081-2d11bee6-012d-11bef683-0003');
+
+

@@ -13,20 +13,15 @@
 		<security:intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<security:intercept-url pattern="/home" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+		<!-- on the mobile devices the 'ping' and 'signup' methods are public -->
 		<security:intercept-url pattern="/m/ping" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/m/signup" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
 		<!-- everything else requires (at least) the user authority -->
 		<security:intercept-url pattern="/m/*" access="ROLE_USER" />
 
 		<security:intercept-url pattern="/members/*" access="ROLE_USER" />
-
-		<!-- this is likely temporary (allowing anonymous access to methods for web testing only) -->
-		<!--
-		<security:intercept-url pattern="/card/**/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/offer/**/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/cards/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<security:intercept-url pattern="/offers/*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		-->
 		 	
 		<!-- the logout page is protected (you must have been logged in to be able to log out) -->
 		<!--		

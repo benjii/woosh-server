@@ -44,8 +44,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * TODO secure this controller - at the moment everything is available to anonymous users (public)
- * TODO for the more complex multi-step methods refactor into a (transactionalised) service class
+ * This controller handles all Woosh functions including card creation, making offers, and scanning for offers.
  * 
  * @author Ben
  */
