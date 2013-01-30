@@ -22,7 +22,7 @@ public class CardDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Card> i
 								  .setFetchMode("data", FetchMode.JOIN)
 				   				  .add(Restrictions.eq("clientId", id))
 				   				  .add(Restrictions.eq("owner", user))
-				   				  .uniqueResult();
-		
+				   				  .uniqueResult();		
 	}
+	
 }

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.luminos.woosh.dao.RoleDao;
 import com.luminos.woosh.dao.UserDao;
+import com.luminos.woosh.domain.common.Role;
 import com.luminos.woosh.domain.common.User;
 import com.luminos.woosh.security.Md5PasswordEncoder;
 
@@ -33,11 +35,14 @@ public class AuthenticationController extends AbstractLuminosController {
 	@Autowired
 	private UserDao userDao = null;
 	
+	@Autowired
+	private RoleDao roleDao = null;
+		
 	
 	@RequestMapping(value="/m/signup", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public String signup(@RequestParam String username, @RequestParam String password,
+	public String signup(@RequestParam String username, @RequestParam String password, @RequestParam String invitationKey,
 						 @RequestParam(required=false) String email) {
 
 		LOGGER.info("User requested sign-up (username='" + username + "').");
@@ -60,15 +65,28 @@ public class AuthenticationController extends AbstractLuminosController {
 			return "{ \"status\": \"USERNAME_UNAVAILABLE\" }";			
 		}
 		
+		// check that the invitation key exists
+		User invitedBy = userDao.findByInvitationalKey(invitationKey);
+		if (invitedBy == null) {
+			return "{ \"status\": \"INVALID_INVITATION_KEY\" }";		
+		}
+		
+		LOGGER.info("User '" + username + "' was invited by '" + invitedBy.getUsername() + "'.");
+
 		// if everything checks out then continue
+		Role standardUserRole = roleDao.findByAuthority("ROLE_USER");
 		
 		// create the new user
 		User newUser = new User(username, Md5PasswordEncoder.hashPassword(password), email);
 		userDao.save(newUser);
 
+		// grant the standard user role to the new user
+		newUser.addAuthority(standardUserRole);
+		userDao.save(newUser);		
+		
 		LOGGER.info("User signed up successfully (username='" + username + "').");
-
-		return "{ \"status\": \"OK\" }";
+		
+		return "{ \"status\": \"OK\", \"invitationKey\": \"" + newUser.getInvitationalKey() + "\" }";
 	}
 
 

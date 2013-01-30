@@ -35,6 +35,8 @@ public class User implements UserDetails, Comparable<User> {
 
 	private static final long serialVersionUID = 2667226600487694113L;
 
+	private static final Integer INVITATION_KEY_LENGTH = 8;	
+
 	public static final User ANONYMOUS_USER = new User("anonymous-user");	
 
 	
@@ -105,13 +107,17 @@ public class User implements UserDetails, Comparable<User> {
 		this.username = username;
 		this.password = password;
 		this.email = email;
-		this.invitationalKey = new RandomString(8).nextString();
+		this.invitationalKey = new RandomString(INVITATION_KEY_LENGTH).nextString();
 
 		// set the sign-up time of the user
 		Calendar c = Calendar.getInstance();
 		this.memberSince = new Timestamp(c.getTimeInMillis());
 	}
 
+	public User(String username, String password, String email, User invitedBy) {
+		this(username, password, email);
+		this.invitedBy = invitedBy;
+	}
 	
 	@Override
 	public int compareTo(User other) {
