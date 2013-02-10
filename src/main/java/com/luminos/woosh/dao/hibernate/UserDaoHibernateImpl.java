@@ -59,7 +59,7 @@ public class UserDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<User> i
 	public User findByInvitationalKey(String invitationalKey) {
 		return (User) getSession().createCriteria(User.class, "u")
 		  						  .setFetchMode("authorities", FetchMode.JOIN)
-		  						  .add(Restrictions.eq("u.invitationalKey", invitationalKey).ignoreCase())
+		  						  .add(Restrictions.eq("u.invitationalKey", invitationalKey))
 		  						  .uniqueResult();
 	}	
 	

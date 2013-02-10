@@ -99,7 +99,8 @@ public class AuthenticationController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public String authenticate() {
-		return "{ \"status\": \"OK\" }";
+		User authenticatedUser = super.getUser();
+		return "{ \"status\": \"OK\", \"invitationKey\": \"" + authenticatedUser.getInvitationalKey() + "\" }";
 	}
 	
 }
