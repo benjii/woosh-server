@@ -14,7 +14,12 @@ public class CardBean {
 	private String id = null;
 
 	private String name = null;
-	
+
+	// TODO thinking about including this, but leaving it out for now
+//	private String lastOfferStart = null;
+//
+//	private String lastOfferEnd = null;
+
 	private List<CardDataBean> data = null;
 
 	

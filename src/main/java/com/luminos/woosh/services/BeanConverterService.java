@@ -76,7 +76,8 @@ public class BeanConverterService {
 		if ( StringUtils.isNotBlank(data.getData()) ) {
 			dataBean = new CardDataBean(data.getName(), data.getData(), CardDataType.TEXT);
 		} else {
-			dataBean = new CardDataBean(data.getName(), s3proxy.createSignedUrl(data.getBinaryData()), CardDataType.BINARY);					
+//			dataBean = new CardDataBean(data.getName(), s3proxy.createSignedUrl(data.getBinaryData()), CardDataType.BINARY);
+			dataBean = new CardDataBean(data.getName(), s3proxy.createSignedUrl(data.getBinaryData()), data.getBinaryData().getRemoteId());
 		}
 
 		return dataBean;

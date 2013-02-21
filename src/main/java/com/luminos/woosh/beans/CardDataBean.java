@@ -16,8 +16,9 @@ public class CardDataBean {
 	// if type == BINARY then this is a base64 encoded value
 	private String value = null;
 	
-//	private String base64BinaryValue = null;
-
+	// if the data is binary then it will have a UUID
+	private String binaryId = null;
+	
 	
 	public CardDataBean() {
 		// default constructor required by Spring MVC
@@ -29,6 +30,11 @@ public class CardDataBean {
 		this.value = value;
 	}
 
+	public CardDataBean(String name, String value, String binaryId) {
+		this(name, value, CardDataType.BINARY);
+		this.binaryId = binaryId;
+	}
+	
 	
 	public String getName() {
 		return name;
@@ -54,12 +60,12 @@ public class CardDataBean {
 		this.value = value;
 	}
 
-//	public String getBase64BinaryValue() {
-//		return base64BinaryValue;
-//	}
-//
-//	public void setBase64BinaryValue(String base64BinaryValue) {
-//		this.base64BinaryValue = base64BinaryValue;
-//	}
+	public String getBinaryId() {
+		return binaryId;
+	}
+
+	public void setBinaryId(String binaryId) {
+		this.binaryId = binaryId;
+	}
 
 }
