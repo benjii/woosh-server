@@ -92,6 +92,12 @@ public class WooshController extends AbstractLuminosController {
 		return "{ \"status\": \"OK\" }";
 	}
 	
+	/**
+	 * 
+	 * @param card
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping(value="/m/card", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
@@ -128,10 +134,16 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newCard.getClientId());
 	}
 	
+	/**
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping(value="/m/card/{id}", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public CardBean getCard(@PathVariable String id, HttpServletResponse response) {
+	public CardBean getCard(@PathVariable String id, HttpServletRequest request /*, HttpServletResponse response */) {
 		Card card = cardDao.findByClientId(id, super.getUser());
 		
 		if (card == null) {
@@ -141,6 +153,28 @@ public class WooshController extends AbstractLuminosController {
 		return beanConverterService.convertCard(card);		
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value="/m/card/{id}", method=RequestMethod.DELETE)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public Receipt deleteCard(@PathVariable String id, HttpServletResponse response) {
+		
+		// delete the card
+		Card deletedCard = wooshServices.deleteCard(id, super.getUser());
+
+		// return a receipt to the client
+		return new Receipt(deletedCard.getClientId());
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value="/m/cards", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
@@ -150,6 +184,11 @@ public class WooshController extends AbstractLuminosController {
 		return beanConverterService.convertCards(cards);
 	}
 
+	/**
+	 * 
+	 * @param offer
+	 * @return
+	 */
 	@RequestMapping(value="/m/offer", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
@@ -170,6 +209,12 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newOffer.getClientId());
 	}
 
+	/**
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return
+	 */
 	@RequestMapping(value="/m/offers", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
@@ -188,6 +233,12 @@ public class WooshController extends AbstractLuminosController {
 		return availableOffers;
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/m/offer/accept/{id}", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody

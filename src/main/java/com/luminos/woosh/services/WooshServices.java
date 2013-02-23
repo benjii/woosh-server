@@ -139,6 +139,49 @@ public class WooshServices {
 	/**
 	 * 
 	 * @param cardId
+	 * @param user
+	 * @return
+	 */
+	@Transactional
+	public Card deleteCard(String cardId, User user) {
+		Card card = cardDao.findByClientId(cardId, user);
+		
+		if (card == null) {
+			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
+		}
+
+		// to delete a card we mark it, and all of it's data elements, as deleted
+		// we also remove all associated binary data from S3, if needed
+		card.setDeleted(Boolean.TRUE);
+		cardDao.save(card);
+		
+		// tag each card data element as deleted and remove any binary data if needed
+		if (card.getData() != null && card.getData().size() > 0) {
+			
+			for (CardData data : card.getData()) {
+			
+				// flag the data element as deleted
+				data.setDeleted(Boolean.TRUE);
+				
+				// remove binary data if needed
+				RemoteBinaryObject remoteBinary  = data.getBinaryData();
+				if (remoteBinary != null) {
+					cloudServiceProxy.delete(remoteBinary);
+					remoteBinary.setDeleted(Boolean.TRUE);
+					remoteBinaryObjectDao.save(remoteBinary);
+				}
+
+				// flush to the database
+				cardDataDao.save(data);
+			}
+		}
+
+		return card;
+	}
+	
+	/**
+	 * 
+	 * @param cardId
 	 * @param location
 	 * @param autoAccept
 	 * @param user
