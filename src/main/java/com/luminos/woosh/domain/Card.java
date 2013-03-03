@@ -2,6 +2,7 @@ package com.luminos.woosh.domain;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,6 +88,9 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	// cards can have a maximum number of 'hops' (that is, the maximum number of times that an order can be 'forwarded')
 	private Integer maximumHops = DEFAULT_MAXIMUM_HOPS;
 
+	@OneToOne
+	private Offer lastOffer = null;
+	
 	// the method by which the card is shared between users
 	@Enumerated(value=EnumType.STRING)
 	private ShareMethod shareMethod = ShareMethod.CLONE;
@@ -144,6 +148,24 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		return card;
 	}
 	
+	/**
+	 * Determines if a card is currently active (on offer).
+	 * 
+	 * @return True if the card is on offer, false otherwise.
+	 */
+	public boolean isActive() {
+		if (this.lastOffer == null) {
+			return false;
+		}
+//		if (this.lastOfferStart == null || this.lastOfferEnd == null) {
+//			return false;
+//		}
+
+		Timestamp now = new Timestamp(Calendar.getInstance().getTimeInMillis());
+//		return now.after(this.lastOfferStart) && now.before(this.lastOfferEnd);
+		return now.after(lastOffer.getOfferStart()) && now.before(lastOffer.getOfferEnd());
+
+	}
 	
 	/**
 	 * TODO add a name check to ensure that all card data names are unique
@@ -265,6 +287,14 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 
 	public void setMaximumHops(Integer maximumHops) {
 		this.maximumHops = maximumHops;
+	}
+
+	public Offer getLastOffer() {
+		return lastOffer;
+	}
+
+	public void setLastOffer(Offer lastOffer) {
+		this.lastOffer = lastOffer;
 	}
 
 	public ShareMethod getShareMethod() {

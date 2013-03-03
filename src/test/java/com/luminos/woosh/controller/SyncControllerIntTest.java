@@ -121,7 +121,7 @@ public class SyncControllerIntTest extends AbstractLuminosIntegrationTest {
 
 		SynchronizationEntityDefinition def = schema.get("cards");
 		assertNotNull("No schema definition 'cards' found.", def);
-		assertEquals("The synchronizable object should have 10 fields.", 10, def.getFieldCount());
+		assertEquals("The synchronizable object should have 11 fields.", 11, def.getFieldCount());
 
 	}
 

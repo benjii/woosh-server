@@ -1,5 +1,7 @@
 package com.luminos.woosh.controller;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -179,8 +181,7 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public List<CardBean> getCardsForUser() {
-		List<Card> cards = cardDao.findAll(super.getUser());
-
+		List<Card> cards = cardDao.findAllByOfferStart(super.getUser());
 		return beanConverterService.convertCards(cards);
 	}
 
@@ -209,6 +210,20 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newOffer.getClientId());
 	}
 
+	@RequestMapping(value="/m/offer/expire/{id}", method=RequestMethod.POST)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public Receipt expireOffer(@PathVariable String id, HttpServletResponse response) {
+		Offer offerToExpire = offerDao.findByClientId(id);
+		
+		// to expire an offer we simply move the offer end time to be right now
+		// TODO refactor this into a service method
+		offerToExpire.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		offerDao.save(offerToExpire);
+				
+		return new Receipt(id);
+	}
+	
 	/**
 	 * 
 	 * @param latitude

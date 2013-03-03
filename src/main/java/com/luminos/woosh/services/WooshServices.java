@@ -199,6 +199,12 @@ public class WooshServices {
 		Offer offer = new Offer(user, card, duration, location, autoAccept);
 		offerDao.save(offer);
 		
+		// record the last offer time on the card
+		card.setLastOffer(offer);
+		card.addOffer(offer);
+
+		cardDao.save(card);
+		
 		return offer;
 	}
 	

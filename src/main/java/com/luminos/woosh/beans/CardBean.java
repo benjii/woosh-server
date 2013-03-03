@@ -1,9 +1,11 @@
 package com.luminos.woosh.beans;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.luminos.woosh.domain.Card;
+import com.luminos.woosh.domain.Offer;
 
 /**
  * 
@@ -15,11 +17,12 @@ public class CardBean {
 
 	private String name = null;
 
-	// TODO thinking about including this, but leaving it out for now
-//	private String lastOfferStart = null;
-//
-//	private String lastOfferEnd = null;
+	private Timestamp lastOfferStart = null;
 
+	private Timestamp lastOfferEnd = null;
+
+	private String lastOfferId = null;
+	
 	private List<CardDataBean> data = null;
 
 	
@@ -30,11 +33,21 @@ public class CardBean {
 	public CardBean(Card card) {
 		this.id = card.getClientId();
 		this.name = card.getName();
+		if (card.getLastOffer() != null) {
+			this.lastOfferStart = card.getLastOffer().getOfferStart();
+			this.lastOfferEnd = card.getLastOffer().getOfferEnd();
+			this.lastOfferId = card.getLastOffer().getClientId();
+		}
 	}
 	
-	public CardBean(String id, String name) {
+	public CardBean(String id, String name, Offer lastOffer) {
 		this.id = id;
 		this.name = name;
+		if (lastOffer != null) {
+			this.lastOfferStart = lastOffer.getOfferStart();
+			this.lastOfferEnd = lastOffer.getOfferEnd();
+			this.lastOfferId = lastOffer.getClientId();
+		}
 	}
 
 
@@ -60,6 +73,30 @@ public class CardBean {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Timestamp getLastOfferStart() {
+		return lastOfferStart;
+	}
+
+	public void setLastOfferStart(Timestamp lastOfferStart) {
+		this.lastOfferStart = lastOfferStart;
+	}
+
+	public Timestamp getLastOfferEnd() {
+		return lastOfferEnd;
+	}
+
+	public void setLastOfferEnd(Timestamp lastOfferEnd) {
+		this.lastOfferEnd = lastOfferEnd;
+	}
+
+	public String getLastOfferId() {
+		return lastOfferId;
+	}
+
+	public void setLastOfferId(String lastOfferId) {
+		this.lastOfferId = lastOfferId;
 	}
 
 	public List<CardDataBean> getData() {

@@ -1,8 +1,12 @@
 package com.luminos.woosh.dao.hibernate;
 
+import java.util.List;
+
 import org.hibernate.FetchMode;
 import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.springframework.stereotype.Repository;
 
 import com.luminos.woosh.dao.CardDao;
@@ -24,5 +28,17 @@ public class CardDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Card> i
 				   				  .add(Restrictions.eq("owner", user))
 				   				  .uniqueResult();		
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public List<Card> findAllByOfferStart(User user) {
+		return (List<Card>) getSession().createCriteria(Card.class, "c")
+										.createAlias("offers", "o", CriteriaSpecification.LEFT_JOIN)
+										.add(RECORD_IS_NOT_DELETED)
+										.add(Restrictions.eq("owner", user))
+										.addOrder(Order.desc("o.offerStart"))
+										.setResultTransformer(new DistinctRootEntityResultTransformer())
+										.list();
+		
+	}
+
 }

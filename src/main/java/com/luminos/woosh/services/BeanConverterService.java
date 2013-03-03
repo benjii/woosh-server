@@ -55,7 +55,7 @@ public class BeanConverterService {
 		List<CardBean> beans = new ArrayList<CardBean>();
 		
 		for (Card card : cards) {
-			CardBean cardBean = new CardBean(card.getClientId(), card.getName());
+			CardBean cardBean = new CardBean(card.getClientId(), card.getName(), card.getLastOffer());
 			
 			if (card.getData() != null) {
 				for (CardData data : card.getData()) {

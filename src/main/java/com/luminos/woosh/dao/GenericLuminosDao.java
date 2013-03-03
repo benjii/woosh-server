@@ -3,6 +3,7 @@ package com.luminos.woosh.dao;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 
 import com.luminos.woosh.domain.common.User;
 
@@ -81,6 +82,14 @@ public interface GenericLuminosDao<T> {
 	 * @return
 	 */
 	List<T> findAll(User user);
+
+	/**
+	 * 
+	 * @param user
+	 * @param orderColumn
+	 * @return
+	 */
+	List<T> findAll(User user, Order order);
 
 	/**
 	 * Returns the total number of non-deleted instances of an entity.

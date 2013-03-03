@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Junction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
@@ -87,6 +88,15 @@ public class GenericLuminosDaoHibernateImpl<T> implements GenericLuminosDao<T> {
 		return (List<T>) getSession().createCriteria(this.getGenericClass())
 									 .add(RECORD_IS_NOT_DELETED)
 									 .add(Restrictions.eq("owner", user))
+									 .list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<T> findAll(User user, Order order) {
+		return (List<T>) getSession().createCriteria(this.getGenericClass())
+									 .add(RECORD_IS_NOT_DELETED)
+									 .add(Restrictions.eq("owner", user))
+									 .addOrder(order)
 									 .list();
 	}
 
