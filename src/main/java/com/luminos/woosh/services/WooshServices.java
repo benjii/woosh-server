@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +78,7 @@ public class WooshServices {
 	 * @return
 	 */
 	@Transactional
-	public CardData addBinaryDataToCard(String cardId, String name, byte[] binary, User user) {
+	public CardData addBinaryDataToCard(String cardId, String name, String binaryId, byte[] binary, User user) {
 		Card card = cardDao.findByClientId(cardId);
 		CardData data = null;
 
@@ -89,7 +88,7 @@ public class WooshServices {
 		}
 
 		// create the remote binary object pointer to store locally
-		RemoteBinaryObject rbo = new RemoteBinaryObject(user, UUID.randomUUID().toString());
+		RemoteBinaryObject rbo = new RemoteBinaryObject(user, binaryId /*UUID.randomUUID().toString()*/);
 			
 		// upload to S3
 		cloudServiceProxy.upload(rbo, binary);

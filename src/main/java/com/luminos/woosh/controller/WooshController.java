@@ -107,7 +107,6 @@ public class WooshController extends AbstractLuminosController {
 		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + super.getUser().getUsername());
 		
 		// create the new card for the user
-		// TODO refactor this so that it's included with the services area (so that it is correctly transactionalised)
 		Card newCard = new Card(super.getUser(), card.getName());
 		cardDao.save(newCard);
 		
@@ -119,7 +118,8 @@ public class WooshController extends AbstractLuminosController {
 								
 					// this is binary data - decode it
 					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getValue());
-					wooshServices.addBinaryDataToCard(newCard.getClientId(), dataBean.getName(), decodedBinary, super.getUser());
+					wooshServices.addBinaryDataToCard(newCard.getClientId(), dataBean.getName(), dataBean.getBinaryId(),
+													  decodedBinary, super.getUser());
 
 				} else {
 					

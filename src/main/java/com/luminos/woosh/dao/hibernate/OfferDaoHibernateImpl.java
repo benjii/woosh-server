@@ -20,7 +20,7 @@ import com.luminos.woosh.domain.Scan;
  * @author Ben
  */
 @Repository
-public class OfferDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Offer>implements OfferDao {
+public class OfferDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Offer> implements OfferDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
