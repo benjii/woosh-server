@@ -11,7 +11,7 @@ import com.luminos.woosh.domain.common.Role;
  * @author Ben
  */
 @Repository
-public class RoleDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Role> implements RoleDao {
+public class RoleDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Role> implements RoleDao {
 	
 	public Role findByAuthority(String authority) {
 		return (Role) getSession().createCriteria(Role.class)

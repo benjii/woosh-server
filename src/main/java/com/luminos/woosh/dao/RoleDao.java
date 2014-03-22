@@ -6,7 +6,7 @@ import com.luminos.woosh.domain.common.Role;
  * 
  * @author Ben
  */
-public interface RoleDao extends GenericLuminosDao<Role> {
+public interface RoleDao extends GenericWooshDao<Role> {
 
 	/**
 	 * 

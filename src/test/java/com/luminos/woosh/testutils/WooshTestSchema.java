@@ -7,7 +7,7 @@ import org.hibernate.cfg.Configuration;
  * 
  * @author Ben
  */
-public class WaybridgeTestSchema {
+public class WooshTestSchema {
 
 	static {
 		Configuration config = new AnnotationConfiguration().configure("test-hibernate.cfg.xml");

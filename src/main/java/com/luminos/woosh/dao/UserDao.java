@@ -6,7 +6,7 @@ import com.luminos.woosh.domain.common.User;
  * 
  * @author Ben
  */
-public interface UserDao extends GenericLuminosDao<User> {
+public interface UserDao extends GenericWooshDao<User> {
 
 	/**
 	 * 

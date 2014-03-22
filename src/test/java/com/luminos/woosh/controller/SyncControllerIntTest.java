@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpSession;
@@ -45,6 +46,8 @@ import com.luminos.woosh.util.GeoSpatialUtils;
  * 
  * @author Ben
  */
+@Deprecated
+@Ignore
 public class SyncControllerIntTest extends AbstractLuminosIntegrationTest {
 
 	private static final Logger LOGGER = Logger.getLogger(SyncControllerIntTest.class);

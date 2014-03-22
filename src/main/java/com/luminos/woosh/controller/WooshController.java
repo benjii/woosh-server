@@ -28,12 +28,8 @@ import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CardDataBean;
 import com.luminos.woosh.beans.OfferBean;
 import com.luminos.woosh.beans.Receipt;
-import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
-import com.luminos.woosh.dao.CardDataDao;
 import com.luminos.woosh.dao.OfferDao;
-import com.luminos.woosh.dao.ScanDao;
-import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.domain.common.User;
@@ -60,19 +56,7 @@ public class WooshController extends AbstractLuminosController {
 	private CardDao cardDao = null;
 	
 	@Autowired
-	private CardDataDao cardDataDao = null;
-
-	@Autowired
 	private OfferDao offerDao = null;
-
-	@Autowired
-	private ScanDao scanDao = null;
-
-	@Autowired
-	private AcceptanceDao acceptanceDao = null;
-
-	@Autowired
-	private UserDao userDao = null;
 		
 	@Autowired
 	private WooshServices wooshServices = null;
@@ -105,6 +89,8 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseBody
 	public Receipt addCard(@RequestBody CardBean card, HttpServletRequest request) {
 		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + super.getUser().getUsername());
+		
+		// TODO refactor into service
 		
 		// create the new card for the user
 		Card newCard = new Card(super.getUser(), card.getName());
@@ -181,7 +167,10 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public List<CardBean> getCardsForUser() {
+		
+		// TODO refactor into service
 		List<Card> cards = cardDao.findAllByOfferStart(super.getUser());
+
 		return beanConverterService.convertCards(cards);
 	}
 
@@ -210,6 +199,12 @@ public class WooshController extends AbstractLuminosController {
 		return new Receipt(newOffer.getClientId());
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/m/offer/expire/{id}", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
@@ -217,7 +212,8 @@ public class WooshController extends AbstractLuminosController {
 		Offer offerToExpire = offerDao.findByClientId(id);
 		
 		// to expire an offer we simply move the offer end time to be right now
-		// TODO refactor this into a service method
+		// TODO refactor this into a service
+		
 		offerToExpire.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		offerDao.save(offerToExpire);
 				

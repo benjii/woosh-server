@@ -13,7 +13,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
-import com.luminos.woosh.dao.GenericLuminosDao;
+import com.luminos.woosh.dao.GenericWooshDao;
 import com.luminos.woosh.domain.common.User;
 
 /**
@@ -23,7 +23,7 @@ import com.luminos.woosh.domain.common.User;
  * @param <T>
  */
 @Repository
-public class GenericLuminosDaoHibernateImpl<T> implements GenericLuminosDao<T> {
+public class GenericWooshDaoHibernateImpl<T> implements GenericWooshDao<T> {
 
 	protected static final Junction RECORD_IS_NOT_DELETED = Restrictions.disjunction().add(Restrictions.eq("deleted", false))
 																					  .add(Restrictions.isNull("deleted"));

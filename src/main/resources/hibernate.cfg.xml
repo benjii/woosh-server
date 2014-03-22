@@ -19,6 +19,7 @@
 		<mapping class="com.luminos.woosh.domain.common.User" />
 		<mapping class="com.luminos.woosh.domain.common.Role" />
 		<mapping class="com.luminos.woosh.domain.common.RemoteBinaryObject" />
+		<mapping class="com.luminos.woosh.domain.common.LogEntry" />
 
 		<!-- woosh domain objects -->
 		<mapping class="com.luminos.woosh.domain.Card" />

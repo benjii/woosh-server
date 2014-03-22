@@ -6,6 +6,6 @@ import com.luminos.woosh.domain.Scan;
  * 
  * @author Ben
  */
-public interface ScanDao extends GenericLuminosDao<Scan> {
+public interface ScanDao extends GenericWooshDao<Scan> {
 
 }

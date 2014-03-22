@@ -7,7 +7,7 @@
 
 	<security:global-method-security secured-annotations="enabled" />
 	
-	<security:http auto-config="true" entry-point-ref="luminosAuthenticationEntryPoint">
+	<security:http auto-config="true" entry-point-ref="wooshAuthenticationEntryPoint">
 
 		<!-- the root, login, and home pages are unauthenticated -->
 		<security:intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
@@ -37,19 +37,19 @@
 
 		<security:logout invalidate-session="true" logout-success-url="/login" />
 		
-		<security:remember-me data-source-ref="dataSource" key="woosh" /> <!-- user-service-ref="waybridgeUserDetailsService" -->
+		<security:remember-me data-source-ref="dataSource" key="woosh" user-service-ref="wooshUserDetailsService" />
 		
 	</security:http>
 
-  	<bean id="luminosUserDetailsService" class="com.luminos.woosh.security.LuminosUserDetailsService" />
+  	<bean id="wooshUserDetailsService" class="com.luminos.woosh.security.WooshUserDetailsService" />
 
 	<security:authentication-manager alias="authenticationManager">
-		<security:authentication-provider user-service-ref='luminosUserDetailsService'>
+		<security:authentication-provider user-service-ref='wooshUserDetailsService'>
 			<security:password-encoder hash="md5" ref="passwordEncoder" />
 		</security:authentication-provider>
 	</security:authentication-manager>
 	
-	<bean id="luminosAuthenticationEntryPoint" class="com.luminos.woosh.security.LuminosAuthenticationEntryPoint">
+	<bean id="wooshAuthenticationEntryPoint" class="com.luminos.woosh.security.WooshAuthenticationEntryPoint">
   		<property name="loginUrl" value="/login.f"></property>
   	</bean>
 	

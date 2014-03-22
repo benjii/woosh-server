@@ -19,9 +19,9 @@ import com.luminos.woosh.domain.common.User;
  * @author Ben
  */
 @Service
-public class LuminosUserDetailsService implements UserDetailsService, BeanFactoryAware {
+public class WooshUserDetailsService implements UserDetailsService, BeanFactoryAware {
 
-	private static Logger LOGGER = Logger.getLogger(LuminosUserDetailsService.class);
+	private static Logger LOGGER = Logger.getLogger(WooshUserDetailsService.class);
 	
 	private UserDao userDao = null;
 

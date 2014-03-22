@@ -17,6 +17,7 @@ import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.CardDataDao;
 import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.dao.RemoteBinaryObjectDao;
+import com.luminos.woosh.dao.RoleDao;
 import com.luminos.woosh.dao.ScanDao;
 import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.Acceptance;
@@ -25,8 +26,10 @@ import com.luminos.woosh.domain.CardData;
 import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.domain.Scan;
 import com.luminos.woosh.domain.common.RemoteBinaryObject;
+import com.luminos.woosh.domain.common.Role;
 import com.luminos.woosh.domain.common.User;
 import com.luminos.woosh.exception.EntityNotFoundException;
+import com.luminos.woosh.security.Md5PasswordEncoder;
 import com.luminos.woosh.synchronization.service.CloudServiceProxy;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -57,6 +60,9 @@ public class WooshServices {
 	private ScanDao scanDao = null;
 	
 	@Autowired
+	private RoleDao roleDao = null;
+	
+	@Autowired
 	private UserDao userDao = null;
 	
 	@Autowired
@@ -68,6 +74,29 @@ public class WooshServices {
 	@Autowired
 	private BeanConverterService beanConverterService = null;
 
+	
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @param email
+	 */
+	@Transactional
+	public User signup(String username, String password, String email) {
+		
+		// if everything checks out then continue
+		Role standardUserRole = roleDao.findByAuthority("ROLE_USER");
+		
+		// create the new user
+		User newUser = new User(username, Md5PasswordEncoder.hashPassword(password), email);
+		userDao.save(newUser);
+
+		// grant the standard user role to the new user
+		newUser.addAuthority(standardUserRole);
+		userDao.save(newUser);	
+		
+		return newUser;
+	}
 	
 	/**
 	 * 

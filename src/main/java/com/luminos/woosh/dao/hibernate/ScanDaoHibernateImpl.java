@@ -10,6 +10,6 @@ import com.luminos.woosh.domain.Scan;
  * @author Ben
  */
 @Repository
-public class ScanDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Scan> implements ScanDao {
+public class ScanDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Scan> implements ScanDao {
 
 }

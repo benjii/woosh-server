@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.luminos</groupId>
+	<groupId>com.woosh</groupId>
 	<artifactId>woosh</artifactId>
 	<packaging>war</packaging>
 
@@ -56,13 +56,14 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>hibernate3-maven-plugin</artifactId>
-				<version>2.0-alpha-2</version>
+				<version>3.0</version>
+
 				<configuration>
-					<componentProperties>
-						<outputfilename>woosh-schema.sql</outputfilename>
-						<drop>true</drop>
-					</componentProperties>
-				</configuration>
+        			<hibernatetool>
+            			<annotationconfiguration propertyfile="src/main/resources/hibernate.cfg.xml" />
+            			<hbm2ddl drop="true" outputfilename="woosh-schema.sql" console="true" />
+        			</hibernatetool>
+		    	</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -255,6 +256,11 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.github.fernandospr</groupId>
+    		<artifactId>javapns-jdk16</artifactId>
+    		<version>2.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

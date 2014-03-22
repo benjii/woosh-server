@@ -13,7 +13,7 @@ import com.luminos.woosh.synchronization.Synchronizable;
  * 
  * @author Ben
  */
-public interface SynchronizableDao extends GenericLuminosDao<Synchronizable> {
+public interface SynchronizableDao extends GenericWooshDao<Synchronizable> {
 
 	/**
 	 * This method retrieves all instances of the class 'type' with a last updated time after 'lastUpdated'.

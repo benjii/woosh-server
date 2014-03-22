@@ -8,7 +8,7 @@ import com.luminos.woosh.domain.common.User;
  * 
  * @author Ben
  */
-public interface AcceptanceDao extends GenericLuminosDao<Acceptance> {
+public interface AcceptanceDao extends GenericWooshDao<Acceptance> {
 
 	/**
 	 * 

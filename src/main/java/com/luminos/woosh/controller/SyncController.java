@@ -97,6 +97,7 @@ import com.luminos.woosh.util.GeoSpatialUtils;
  * @author Ben
  */
 @Controller
+@Deprecated
 public class SyncController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(SyncController.class);

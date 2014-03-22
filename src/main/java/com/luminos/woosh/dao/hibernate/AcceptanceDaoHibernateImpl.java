@@ -13,7 +13,7 @@ import com.luminos.woosh.domain.common.User;
  * @author Ben
  */
 @Repository
-public class AcceptanceDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Acceptance> implements AcceptanceDao {
+public class AcceptanceDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Acceptance> implements AcceptanceDao {
 
 	@Override
 	public Acceptance findForOffer(Offer offer, User user) {

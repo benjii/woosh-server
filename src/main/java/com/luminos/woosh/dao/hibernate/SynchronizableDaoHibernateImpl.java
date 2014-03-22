@@ -23,7 +23,8 @@ import com.luminos.woosh.synchronization.UserScopedEntity;
  * @author Ben
  */
 @Repository
-public class SynchronizableDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Synchronizable> implements SynchronizableDao {
+@Deprecated
+public class SynchronizableDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Synchronizable> implements SynchronizableDao {
 
 	@SuppressWarnings("unchecked")
 	@Override

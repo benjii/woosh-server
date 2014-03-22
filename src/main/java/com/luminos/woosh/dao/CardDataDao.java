@@ -6,6 +6,6 @@ import com.luminos.woosh.domain.CardData;
  * 
  * @author Ben
  */
-public interface CardDataDao extends GenericLuminosDao<CardData> {
+public interface CardDataDao extends GenericWooshDao<CardData> {
 
 }

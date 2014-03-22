@@ -3,7 +3,6 @@ package com.luminos.woosh.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,13 +35,15 @@ public class HomeController extends AbstractLuminosController {
 
 	
 	@RequestMapping(value={ "/home", "/" }, method=RequestMethod.GET)
-	@Secured({ "ROLE_USER" })
+//	@Secured({ "ROLE_USER" })
 	public ModelAndView home() {
 		
 		// the Woosh home page just shows a few system statistics right now
 		// but hopefully a little comic soon!
 		ModelAndView mav = new ModelAndView("home");
 
+		// TODO refactor into a service
+		
 		mav.addObject("card_count", cardDao.count());
 		mav.addObject("full_card_count", cardDao.countAll());
 		mav.addObject("offer_count", offerDao.count());
@@ -53,13 +54,14 @@ public class HomeController extends AbstractLuminosController {
 	}
 
 	@RequestMapping(value={ "/syncsvc" }, method=RequestMethod.GET)
-	@Secured({ "ROLE_USER" })
+//	@Secured({ "ROLE_USER" })
+	@Deprecated
 	public ModelAndView synchronizationService() {
 		return new ModelAndView("syncsvc");
 	}
 
 	@RequestMapping(value={ "/restapi" }, method=RequestMethod.GET)
-	@Secured({ "ROLE_USER" })
+//	@Secured({ "ROLE_USER" })
 	public ModelAndView restfulApi() {
 		return new ModelAndView("restapi");
 	}

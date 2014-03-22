@@ -15,7 +15,7 @@ import com.luminos.woosh.domain.common.User;
  * @author Ben
  */
 @Repository
-public class UserDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<User> implements UserDao {
+public class UserDaoHibernateImpl extends GenericWooshDaoHibernateImpl<User> implements UserDao {
 
 	/**
 	 * We override the standard findById(...) method for the User entity to ensure that we

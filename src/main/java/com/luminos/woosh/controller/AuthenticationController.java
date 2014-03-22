@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.luminos.woosh.dao.RoleDao;
 import com.luminos.woosh.dao.UserDao;
-import com.luminos.woosh.domain.common.Role;
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.security.Md5PasswordEncoder;
+import com.luminos.woosh.services.WooshServices;
 
 /**
  * This controller is responsible for user management.
@@ -34,9 +32,9 @@ public class AuthenticationController extends AbstractLuminosController {
 	
 	@Autowired
 	private UserDao userDao = null;
-	
+		
 	@Autowired
-	private RoleDao roleDao = null;
+	private WooshServices wooshServices = null;
 		
 	
 	@RequestMapping(value="/m/signup", method=RequestMethod.GET)
@@ -59,6 +57,8 @@ public class AuthenticationController extends AbstractLuminosController {
 			return "{ \"status\": \"INVALID_PASSWORD\" }";
 		}
 
+		// TODO refactor these checks into the service method?
+		
 		// check that the username is not already taken
 		User existingUser = userDao.findByUsername(username);
 		if (existingUser != null) {
@@ -73,16 +73,8 @@ public class AuthenticationController extends AbstractLuminosController {
 		
 		LOGGER.info("User '" + username + "' was invited by '" + invitedBy.getUsername() + "'.");
 
-		// if everything checks out then continue
-		Role standardUserRole = roleDao.findByAuthority("ROLE_USER");
-		
-		// create the new user
-		User newUser = new User(username, Md5PasswordEncoder.hashPassword(password), email);
-		userDao.save(newUser);
-
-		// grant the standard user role to the new user
-		newUser.addAuthority(standardUserRole);
-		userDao.save(newUser);		
+		// call the sign up service
+		User newUser = wooshServices.signup(username, password, email);
 		
 		LOGGER.info("User signed up successfully (username='" + username + "').");
 		

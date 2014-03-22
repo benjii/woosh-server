@@ -11,7 +11,7 @@ import org.hibernate.type.Type;
  * 
  * @author Ben
  */
-public class LuminosHibernateIntercepter extends EmptyInterceptor {
+public class WooshHibernateIntercepter extends EmptyInterceptor {
 
 	private static final long serialVersionUID = -340808067313423939L;
 

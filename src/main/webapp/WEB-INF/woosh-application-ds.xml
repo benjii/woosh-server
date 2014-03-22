@@ -11,7 +11,6 @@
 						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
 						   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
-
 	<context:property-placeholder location="classpath:database.properties" />
 
 	<!-- we declare only UserDao (we have not migrated Spring Security forward yet) -->
@@ -23,7 +22,7 @@
   	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<!-- standard intercepter to set the 'lastUpdated' property for persisted entities -->
-  	<bean id="wooshInterceptor" class="com.luminos.woosh.hibernate.LuminosHibernateIntercepter" />
+  	<bean id="wooshInterceptor" class="com.luminos.woosh.hibernate.WooshHibernateIntercepter" />
 
 	<!-- the Hibernate transaction manager -->
 	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
@@ -68,7 +67,8 @@
        			<value>com.luminos.woosh.domain.common.User</value>
        			<value>com.luminos.woosh.domain.common.Role</value>
        			<value>com.luminos.woosh.domain.common.RemoteBinaryObject</value>
-
+       			<value>com.luminos.woosh.domain.common.LogEntry</value>
+       			
        			<value>com.luminos.woosh.domain.Card</value>
        			<value>com.luminos.woosh.domain.CardData</value>
        			<value>com.luminos.woosh.domain.Offer</value>

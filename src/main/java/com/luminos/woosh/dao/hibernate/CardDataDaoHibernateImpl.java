@@ -10,6 +10,6 @@ import com.luminos.woosh.domain.CardData;
  * @author Ben
  */
 @Repository
-public class CardDataDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<CardData> implements CardDataDao {
+public class CardDataDaoHibernateImpl extends GenericWooshDaoHibernateImpl<CardData> implements CardDataDao {
 
 }

@@ -18,7 +18,7 @@ import com.luminos.woosh.domain.common.User;
  * @author Ben
  */
 @Repository
-public class CardDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<Card> implements CardDao {
+public class CardDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Card> implements CardDao {
 
 	public Card findByClientId(String id, User user) {
 		return (Card) getSession().createCriteria(Card.class)

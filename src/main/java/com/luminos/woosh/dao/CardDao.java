@@ -9,7 +9,7 @@ import com.luminos.woosh.domain.common.User;
  * 
  * @author Ben
  */
-public interface CardDao extends GenericLuminosDao<Card> {
+public interface CardDao extends GenericWooshDao<Card> {
 
 	/**
 	 * 

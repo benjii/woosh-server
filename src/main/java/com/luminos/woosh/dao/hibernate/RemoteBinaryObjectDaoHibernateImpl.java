@@ -10,6 +10,6 @@ import com.luminos.woosh.domain.common.RemoteBinaryObject;
  * @author Ben
  */
 @Repository
-public class RemoteBinaryObjectDaoHibernateImpl extends GenericLuminosDaoHibernateImpl<RemoteBinaryObject> implements RemoteBinaryObjectDao {
+public class RemoteBinaryObjectDaoHibernateImpl extends GenericWooshDaoHibernateImpl<RemoteBinaryObject> implements RemoteBinaryObjectDao {
 
 }

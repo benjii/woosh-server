@@ -2,6 +2,7 @@ package com.luminos.woosh.synchronization.service;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,6 +13,8 @@ import com.luminos.woosh.synchronization.service.SynchronizationService;
  * 
  * @author Ben
  */
+@Deprecated
+@Ignore
 public class SynchronizationServiceIntTest extends AbstractLuminosIntegrationTest {
 	
 	@Autowired

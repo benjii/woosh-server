@@ -13,7 +13,7 @@ import com.luminos.woosh.domain.common.User;
  *
  * @param <T>
  */
-public interface GenericLuminosDao<T> {
+public interface GenericWooshDao<T> {
 
 	/**
 	 * Saves or updates an entity.

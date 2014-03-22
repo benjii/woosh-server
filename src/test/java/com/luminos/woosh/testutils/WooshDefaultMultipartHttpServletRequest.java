@@ -10,13 +10,13 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
  * 
  * @author Ben
  */
-public class LuminosDefaultMultipartHttpServletRequest extends DefaultMultipartHttpServletRequest {
+public class WooshDefaultMultipartHttpServletRequest extends DefaultMultipartHttpServletRequest {
 
 	/**
 	 * 
 	 * @param request
 	 */
-	public LuminosDefaultMultipartHttpServletRequest(HttpServletRequest request, MultiValueMap<String, MultipartFile> files) {
+	public WooshDefaultMultipartHttpServletRequest(HttpServletRequest request, MultiValueMap<String, MultipartFile> files) {
 		super(request);
 		super.setMultipartFiles(files);
 	}

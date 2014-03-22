@@ -9,7 +9,7 @@ import com.luminos.woosh.domain.Scan;
  * 
  * @author Ben
  */
-public interface OfferDao extends GenericLuminosDao<Offer> {
+public interface OfferDao extends GenericWooshDao<Offer> {
 
 	/**
 	 * 

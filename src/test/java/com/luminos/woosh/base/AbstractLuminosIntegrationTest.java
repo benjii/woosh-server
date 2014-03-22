@@ -35,7 +35,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.testutils.LuminosDefaultMultipartHttpServletRequest;
+import com.luminos.woosh.testutils.WooshDefaultMultipartHttpServletRequest;
 import com.luminos.woosh.testutils.MockServletContextWebContextLoader;
 
 import freemarker.cache.FileTemplateLoader;
@@ -103,7 +103,7 @@ public abstract class AbstractLuminosIntegrationTest extends AbstractTransaction
     }
 
 	protected DefaultMultipartHttpServletRequest getMultipartRequest(MultiValueMap<String, MultipartFile> files) {
-		DefaultMultipartHttpServletRequest request = new LuminosDefaultMultipartHttpServletRequest(this.getRequest(), files);		
+		DefaultMultipartHttpServletRequest request = new WooshDefaultMultipartHttpServletRequest(this.getRequest(), files);		
 		request.setAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE, super.applicationContext);
 		
         return request;

@@ -21,9 +21,9 @@ import org.springframework.security.web.util.RedirectUrlBuilder;
  * 
  * @author Ben
  */
-public class LuminosAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class WooshAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	private static Logger LOGGER = Logger.getLogger(LuminosAuthenticationEntryPoint.class);
+	private static Logger LOGGER = Logger.getLogger(WooshAuthenticationEntryPoint.class);
 
     private PortMapper portMapper = new PortMapperImpl();
 
