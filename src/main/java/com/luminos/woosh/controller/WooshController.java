@@ -72,7 +72,7 @@ public class WooshController extends AbstractLuminosController {
 	public PingResponse ping(HttpServletRequest request) {
 		User authenticatedUser = super.getUser();
 
-		LOGGER.info("Received ping reqest from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
+		LOGGER.info("Received ping request from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
 
 		// record that the device ping'd the server (this also gathers other information that is useful the the client)
 		return wooshServices.recordPing(authenticatedUser);
@@ -149,8 +149,10 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/m/cards", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public List<CardBean> getCardsForUser() {
+	public List<CardBean> getCardsForUser(HttpServletRequest request) {
 		User authenticatedUser = super.getUser();
+
+		LOGGER.info("Received request for all cards from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
 
 		// find all of the available (active) offers for the user
 		List<Card> cards = wooshServices.findAllCards(authenticatedUser);
