@@ -1,6 +1,7 @@
 package com.luminos.woosh.services;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CardDataBean;
+import com.luminos.woosh.beans.PingResponse;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
@@ -55,7 +57,11 @@ public class WooshServices {
 	
 	private static final Logger LOGGER = Logger.getLogger(WooshServices.class);
 	
+	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
 	private static final String USER_LIMIT_KEY = "USER_LIMIT";
+
+	private static final String MOTD_KEY = "MOTD";
 
 	private static final Integer UNLIMITED_USERS = -1;
 
@@ -153,9 +159,27 @@ public class WooshServices {
 	 * @param authenticatedUser
 	 */
 	@Transactional
-	public void recordPing(User authenticatedUser) {		
+	public PingResponse recordPing(User authenticatedUser) {
+		PingResponse pingResponse = new PingResponse();
+				
+		// determine how many slots we have left
+		Configuration userLimitConfig = configurationDao.findByKey(USER_LIMIT_KEY);
+		Integer userCount = userDao.count();
+		Integer userLimit = Integer.valueOf(userLimitConfig.getValue());
+
+		// get the MOTD
+		Configuration motd = configurationDao.findByKey(MOTD_KEY);
+		
+		// construct the ping response object
+		pingResponse.setStatus("OK");
+		pingResponse.setServerTime(SDF.format(Calendar.getInstance().getTime()));
+		pingResponse.setRemainingUserSlots(userLimit - userCount);
+		pingResponse.setMotd(motd.getValue());
+		
 		// log the action to the database for audit purposes
-		logEntryDao.save(LogEntry.pingEntry(authenticatedUser));
+		logEntryDao.save(LogEntry.pingEntry());
+		
+		return pingResponse;
 	}	
 
 	/**

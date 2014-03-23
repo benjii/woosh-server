@@ -28,7 +28,7 @@ public class AuthenticationController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(AuthenticationController.class);
 	
-	private static final Integer MINIMUM_USERNAME_LENGTH = 4;
+	private static final Integer MINIMUM_USERNAME_LENGTH = 8;
 
 	private static final Integer MINIMUM_PASSWORD_LENGTH = 6;
 

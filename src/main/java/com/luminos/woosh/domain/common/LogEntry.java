@@ -32,7 +32,8 @@ public class LogEntry {
 	private Integer version = null;
 
 	// the user that took the logged action
-	@OneToOne
+	// this property is optional because the ping action in Woosh is anonymous
+	@OneToOne(optional=true)
 	private User user = null;
 	
 	// the username (simply included because it's easier to query by)
@@ -54,7 +55,9 @@ public class LogEntry {
 
 	public LogEntry(User user, UserAction action) {
 		this.user = user;
-		this.username = user.getUsername();
+		if (user != null) {
+			this.username = user.getUsername();			
+		}
 		this.action = action;
 	}
 	
@@ -65,8 +68,9 @@ public class LogEntry {
 		return new LogEntry(user, UserAction.APNS_TOKEN);
 	}
 
-	public static LogEntry pingEntry(User user) {
-		return new LogEntry(user, UserAction.PING);
+	// in the woosh system ping calls are anonymous
+	public static LogEntry pingEntry() {
+		return new LogEntry(null, UserAction.PING);
 	}
 
 	public static LogEntry signedUpEntry(User user) {

@@ -1,7 +1,5 @@
 package com.luminos.woosh.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +23,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.OfferBean;
+import com.luminos.woosh.beans.PingResponse;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.OfferDao;
@@ -48,8 +47,6 @@ public class WooshController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(WooshController.class);
 	
-	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
 	
 	@Autowired
 	private CardDao cardDao = null;
@@ -72,15 +69,13 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/m/ping", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public String ping(HttpServletRequest request) {
+	public PingResponse ping(HttpServletRequest request) {
 		User authenticatedUser = super.getUser();
 
 		LOGGER.info("Received ping reqest from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
 
-		// record that the device ping'd the server
-		wooshServices.recordPing(authenticatedUser);
-		
-		return "{ \"status\": \"OK\", \"server_time\": \"" + SDF.format(Calendar.getInstance().getTime()) + "\" }";
+		// record that the device ping'd the server (this also gathers other information that is useful the the client)
+		return wooshServices.recordPing(authenticatedUser);
 	}
 	
 	/**
