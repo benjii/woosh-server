@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.common.User;
+import com.luminos.woosh.exception.InvalidInvitationKeyException;
+import com.luminos.woosh.exception.MaximumUsersReachedException;
+import com.luminos.woosh.exception.UsernameAlreadyInUseException;
 import com.luminos.woosh.services.WooshServices;
 
 /**
@@ -56,29 +59,21 @@ public class AuthenticationController extends AbstractLuminosController {
 		if (StringUtils.isBlank(password) || StringUtils.length(password) <= MINIMUM_PASSWORD_LENGTH) {			
 			return "{ \"status\": \"INVALID_PASSWORD\" }";
 		}
-
-		// TODO refactor these checks into the service method?
 		
-		// check that the username is not already taken
-		User existingUser = userDao.findByUsername(username);
-		if (existingUser != null) {
-			return "{ \"status\": \"USERNAME_UNAVAILABLE\" }";			
-		}
-		
-		// check that the invitation key exists
-		User invitedBy = userDao.findByInvitationalKey(invitationKey);
-		if (invitedBy == null) {
-			return "{ \"status\": \"INVALID_INVITATION_KEY\" }";		
-		}
-		
-		LOGGER.info("User '" + username + "' was invited by '" + invitedBy.getUsername() + "'.");
-
 		// call the sign up service
-		User newUser = wooshServices.signup(username, password, email);
-		
-		LOGGER.info("User signed up successfully (username='" + username + "').");
-		
-		return "{ \"status\": \"OK\", \"invitationKey\": \"" + newUser.getInvitationalKey() + "\" }";
+		try {
+			
+			User newUser = wooshServices.signup(username, password, email, invitationKey);			
+			LOGGER.info("User signed up successfully (username='" + username + "').");
+			return "{ \"status\": \"OK\", \"invitationKey\": \"" + newUser.getInvitationalKey() + "\" }";			
+
+		} catch (UsernameAlreadyInUseException e) {
+			return "{ \"status\": \"USERNAME_UNAVAILABLE\" }";						
+		} catch (InvalidInvitationKeyException e) {
+			return "{ \"status\": \"INVALID_INVITATION_KEY\" }";			
+		} catch (MaximumUsersReachedException e) {
+			return "{ \"status\": \"MAXIMUM_USERS_REACHED\" }";			
+		}
 	}
 
 
@@ -92,6 +87,10 @@ public class AuthenticationController extends AbstractLuminosController {
 	@ResponseBody
 	public String authenticate() {
 		User authenticatedUser = super.getUser();
+		
+		// call the service to record the authenticate of the login
+		wooshServices.authenticate(authenticatedUser);
+		
 		return "{ \"status\": \"OK\", \"invitationKey\": \"" + authenticatedUser.getInvitationalKey() + "\" }";
 	}
 	

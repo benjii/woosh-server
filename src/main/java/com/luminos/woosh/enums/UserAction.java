@@ -7,8 +7,17 @@ package com.luminos.woosh.enums;
  */
 public enum UserAction {
 
+	ACCEPT_OFFER,
 	APNS_TOKEN,
+	CREATE_CARD,
+	DELETE_CARD,
+	EXPIRE_OFFER,
+	FIND_ACTIVE_OFFERS,
+	LOGGED_IN,
+	MAKE_OFFER,
 	PING,
+	RETRIEVE_CARD,
+	RETRIEVE_ALL_CARDS,
 	SIGN_UP;
 	
 }

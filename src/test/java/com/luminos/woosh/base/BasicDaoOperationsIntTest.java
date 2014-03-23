@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,6 +32,7 @@ public class BasicDaoOperationsIntTest extends AbstractLuminosIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void generateSomeIds() {
 		// this is not a test - it just a simple way of generating Hibernate IDs for external scripts.
 		

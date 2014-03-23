@@ -68,6 +68,7 @@
        			<value>com.luminos.woosh.domain.common.Role</value>
        			<value>com.luminos.woosh.domain.common.RemoteBinaryObject</value>
        			<value>com.luminos.woosh.domain.common.LogEntry</value>
+       			<value>com.luminos.woosh.domain.common.Configuration</value>
        			
        			<value>com.luminos.woosh.domain.Card</value>
        			<value>com.luminos.woosh.domain.CardData</value>

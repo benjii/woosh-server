@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
+import com.luminos.woosh.beans.CardDataBean;
+import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.AcceptanceDao;
 import com.luminos.woosh.dao.CardDao;
 import com.luminos.woosh.dao.CardDataDao;
+import com.luminos.woosh.dao.ConfigurationDao;
+import com.luminos.woosh.dao.LogEntryDao;
 import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.dao.RemoteBinaryObjectDao;
 import com.luminos.woosh.dao.RoleDao;
@@ -25,10 +31,16 @@ import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.CardData;
 import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.domain.Scan;
+import com.luminos.woosh.domain.common.Configuration;
+import com.luminos.woosh.domain.common.LogEntry;
 import com.luminos.woosh.domain.common.RemoteBinaryObject;
 import com.luminos.woosh.domain.common.Role;
 import com.luminos.woosh.domain.common.User;
+import com.luminos.woosh.enums.CardDataType;
 import com.luminos.woosh.exception.EntityNotFoundException;
+import com.luminos.woosh.exception.InvalidInvitationKeyException;
+import com.luminos.woosh.exception.MaximumUsersReachedException;
+import com.luminos.woosh.exception.UsernameAlreadyInUseException;
 import com.luminos.woosh.security.Md5PasswordEncoder;
 import com.luminos.woosh.synchronization.service.CloudServiceProxy;
 import com.vividsolutions.jts.geom.Geometry;
@@ -43,6 +55,10 @@ public class WooshServices {
 	
 	private static final Logger LOGGER = Logger.getLogger(WooshServices.class);
 	
+	private static final String USER_LIMIT_KEY = "USER_LIMIT";
+
+	private static final Integer UNLIMITED_USERS = -1;
+
 	
 	@Autowired
 	private CardDao cardDao = null;
@@ -66,6 +82,12 @@ public class WooshServices {
 	private UserDao userDao = null;
 	
 	@Autowired
+	private LogEntryDao logEntryDao = null;
+	
+	@Autowired
+	private ConfigurationDao configurationDao = null;
+	
+	@Autowired
 	private RemoteBinaryObjectDao remoteBinaryObjectDao = null;
 	
 	@Autowired
@@ -82,8 +104,33 @@ public class WooshServices {
 	 * @param email
 	 */
 	@Transactional
-	public User signup(String username, String password, String email) {
+	public User signup(String username, String password, String email, String invitationKey) {
 		
+		// the very first thing that we do is to see if we have any more sign-up slots left
+		Configuration userLimitConfig = configurationDao.findByKey(USER_LIMIT_KEY);
+		Integer userCount = userDao.count();
+		Integer userLimit = Integer.valueOf(userLimitConfig.getValue());
+		
+		if ( userCount >= userLimit && userLimit != UNLIMITED_USERS ) {
+			throw new MaximumUsersReachedException();
+		}
+		
+		// if there are slots remaining then perform additional checks
+		
+		// check that the username is not already taken
+		User existingUser = userDao.findByUsername(username);
+		if (existingUser != null) {
+			throw new UsernameAlreadyInUseException();
+		}
+		
+		// check that the invitation key exists
+		User invitedBy = userDao.findByInvitationalKey(invitationKey);
+		if (invitedBy == null) {
+			throw new InvalidInvitationKeyException();
+		}
+
+		LOGGER.info("User '" + username + "' was invited by '" + invitedBy.getUsername() + "'.");
+
 		// if everything checks out then continue
 		Role standardUserRole = roleDao.findByAuthority("ROLE_USER");
 		
@@ -93,77 +140,109 @@ public class WooshServices {
 
 		// grant the standard user role to the new user
 		newUser.addAuthority(standardUserRole);
-		userDao.save(newUser);	
+		userDao.save(newUser);
+		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.signedUpEntry(newUser));
 		
 		return newUser;
 	}
-	
+
 	/**
 	 * 
-	 * @param cardId
-	 * @param name
-	 * @param user
-	 * @param binary
-	 * @return
+	 * @param authenticatedUser
 	 */
 	@Transactional
-	public CardData addBinaryDataToCard(String cardId, String name, String binaryId, byte[] binary, User user) {
-		Card card = cardDao.findByClientId(cardId);
-		CardData data = null;
+	public void recordPing(User authenticatedUser) {		
+		// log the action to the database for audit purposes
+		logEntryDao.save(LogEntry.pingEntry(authenticatedUser));
+	}	
 
-		// if we can't find the card then fault
-		if (card == null) {
-			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
-		}
-
-		// create the remote binary object pointer to store locally
-		RemoteBinaryObject rbo = new RemoteBinaryObject(user, binaryId /*UUID.randomUUID().toString()*/);
-			
-		// upload to S3
-		cloudServiceProxy.upload(rbo, binary);
-			
-		// save the remote pointer to the local database
-		remoteBinaryObjectDao.save(rbo);
-			
-		// create the data item
-		data = new CardData(user, name, rbo, card);
-
-		// save the card
-		card.addData(data);
-		cardDao.save(card);
+	/**
+	 * 
+	 * @param authenticatedUser
+	 */
+	@Transactional
+	public void authenticate(User authenticatedUser) {
 		
-		return data;
+		// record the time of the login
+		authenticatedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
+		userDao.save(authenticatedUser);
+		
+		// log the fact that the user authenticated successfully
+		LOGGER.info("User '" + authenticatedUser.getUsername() + "' authenticated successfully.");
+
+		// log the action to the database for audit purposes
+		logEntryDao.save(LogEntry.loggedInEntry(authenticatedUser));		
 	}
 	
 	/**
 	 * 
-	 * @param cardId
-	 * @param name
-	 * @param value
+	 * @param user
+	 * @param card
+	 * @return
+	 */
+	@Transactional
+	public Receipt createCard(User user, CardBean card) {
+
+		// create the new card for the user
+		Card newCard = new Card(user, card.getName());
+		cardDao.save(newCard);
+		
+		// now create the card data and associate it with the card
+		if (card.getData() != null) {
+			
+			for (CardDataBean dataBean : card.getData()) {
+				if (dataBean.getType() == CardDataType.BINARY) {
+								
+					// this is binary data - decode it
+					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getValue());
+					this.addBinaryDataToCard(newCard.getClientId(), 
+											 dataBean.getName(), 
+											 dataBean.getBinaryId(),
+											 decodedBinary,
+											 user);
+
+				} else {
+					
+					// this is a non-binary (string or similar) attachment
+					this.addDataToCard(newCard.getClientId(), 
+									   dataBean.getName(), 
+									   dataBean.getValue(), 
+									   user);					
+					
+				}
+			}
+		}
+
+		// log the action to the database for audit purposes
+		logEntryDao.save(LogEntry.createCardEntry(user));		
+
+		// return a receipt for the new card
+		return new Receipt(newCard.getClientId());
+	}
+		
+	/**
+	 * 
+	 * @param id
 	 * @param user
 	 * @return
 	 */
 	@Transactional
-	public CardData addDataToCard(String cardId, String name, String value, User user) {
-		Card card = cardDao.findByClientId(cardId);
-		CardData data = null;
+	public Card retrieveCard(String id, User user) {
+		
+		// retrieve the card
+		Card card = cardDao.findByClientId(id, user);
 
-		// if we can't find the card then fault
-		if (card == null) {
-			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
+		// log the action to the database for audit purposes
+		// TODO log if we can't find the card?
+		if (card != null) {
+			logEntryDao.save(LogEntry.retrieveCardEntry(user));			
 		}
-		
-		// this is a non-binary card - simply attach the data and save the card
-		data = new CardData(user, name, value, card);
-		cardDataDao.save(data);
-
-		// save the card
-		card.addData(data);
-		cardDao.save(card);
-		
-		return data;
-	}
 	
+		return card;
+	}
+
 	/**
 	 * 
 	 * @param cardId
@@ -174,6 +253,7 @@ public class WooshServices {
 	public Card deleteCard(String cardId, User user) {
 		Card card = cardDao.findByClientId(cardId, user);
 		
+		// TODO log if we can't find the card?
 		if (card == null) {
 			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
 		}
@@ -204,9 +284,27 @@ public class WooshServices {
 			}
 		}
 
+		// record the action in the database log
+		logEntryDao.save(LogEntry.deleteCardEntry(user));			
+
 		return card;
 	}
 	
+	/**
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@Transactional
+	public List<Card> findAllCards(User user) {
+		List<Card> cards = cardDao.findAllOrderedByOfferStart(user);
+		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.retrieveAllCardsEntry(user));			
+
+		return cards;
+	}
+
 	/**
 	 * 
 	 * @param cardId
@@ -233,9 +331,18 @@ public class WooshServices {
 
 		cardDao.save(card);
 		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.makeOfferEntry(user));			
+
 		return offer;
 	}
 	
+	/**
+	 * 
+	 * @param location
+	 * @param user
+	 * @return
+	 */
 	@Transactional
 	public List<CandidateOffer> findOffers(Point location, User user) {
 		
@@ -292,6 +399,9 @@ public class WooshServices {
 			beans.add(bean);
 		}
 		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.findActiveOffersEntry(user));			
+
 		return beans;
 	}
 	
@@ -315,7 +425,95 @@ public class WooshServices {
 		acceptance.setAcceptedAt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		acceptanceDao.save(acceptance);
 		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.acceptOfferEntry(user));			
+
 		return offer;
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Transactional
+	public Receipt expireOffer(String id, User user) {
+		Offer offerToExpire = offerDao.findByClientId(id);
+
+		// to expire an offer we simply move the offer end time to be right now
+		offerToExpire.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		offerDao.save(offerToExpire);
+		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.expireOfferEntry(user));			
+
+		return new Receipt(offerToExpire.getClientId());
+	}
+
+	/**
+	 * 
+	 * @param cardId
+	 * @param name
+	 * @param user
+	 * @param binary
+	 * @return
+	 */
+	@Transactional
+	private CardData addBinaryDataToCard(String cardId, String name, String binaryId, byte[] binary, User user) {
+		Card card = cardDao.findByClientId(cardId);
+		CardData data = null;
+
+		// if we can't find the card then fault
+		if (card == null) {
+			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
+		}
+
+		// create the remote binary object pointer to store locally
+		RemoteBinaryObject rbo = new RemoteBinaryObject(user, binaryId /*UUID.randomUUID().toString()*/);
+			
+		// upload to S3
+		cloudServiceProxy.upload(rbo, binary);
+			
+		// save the remote pointer to the local database
+		remoteBinaryObjectDao.save(rbo);
+			
+		// create the data item
+		data = new CardData(user, name, rbo, card);
+
+		// save the card
+		card.addData(data);
+		cardDao.save(card);
+		
+		return data;
+	}
+	
+	/**
+	 * 
+	 * @param cardId
+	 * @param name
+	 * @param value
+	 * @param user
+	 * @return
+	 */
+	@Transactional
+	private CardData addDataToCard(String cardId, String name, String value, User user) {
+		Card card = cardDao.findByClientId(cardId);
+		CardData data = null;
+
+		// if we can't find the card then fault
+		if (card == null) {
+			throw new EntityNotFoundException(cardId, "Card entity does not exist or was deleted.");
+		}
+		
+		// this is a non-binary card - simply attach the data and save the card
+		data = new CardData(user, name, value, card);
+		cardDataDao.save(data);
+
+		// save the card
+		card.addData(data);
+		cardDao.save(card);
+		
+		return data;
 	}
 	
 }

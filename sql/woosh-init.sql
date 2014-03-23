@@ -6,12 +6,13 @@ CREATE EXTENSION fuzzystrmatch;
 CREATE EXTENSION postgis_tiger_geocoder;
 
 
-create table Acceptance (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, accepted bool, acceptedAt timestamp, owner_id varchar(255), offer_id varchar(255), card_id varchar(255), primary key (id));
-create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), lastOffer_id varchar(255), owner_id varchar(255), originalCard_id varchar(255), primary key (id));
-create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), card_id varchar(255), binaryData_id varchar(255), owner_id varchar(255), primary key (id));
+create table Acceptance (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, accepted bool, acceptedAt timestamp, offer_id varchar(255), card_id varchar(255), owner_id varchar(255), primary key (id));
+create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), owner_id varchar(255), originalCard_id varchar(255), lastOffer_id varchar(255), primary key (id));
+create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), card_id varchar(255), owner_id varchar(255), binaryData_id varchar(255), primary key (id));
 create table Card_CardData (Card_id varchar(255) not null, data_id varchar(255) not null, unique (data_id));
 create table Card_Offer (Card_id varchar(255) not null, offers_id varchar(255) not null, unique (offers_id));
-create table Offer (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, remainingHops int4, offerStart timestamp, offerEnd timestamp, offerRegion geometry not null, autoAccept bool, card_id varchar(255), owner_id varchar(255), primary key (id));
+create table Configuration (id varchar(255) not null, version int4, key varchar(255), value varchar(255), primary key (id));
+create table Offer (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, remainingHops int4, offerStart timestamp, offerEnd timestamp, offerRegion geometry not null, autoAccept bool, owner_id varchar(255), card_id varchar(255), primary key (id));
 create table RemoteBinaryObject (id varchar(255) not null, version int4, lastUpdated timestamp, deleted bool, remoteId varchar(255), user_id varchar(255), primary key (id));
 create table Role (id varchar(255) not null, version int4, authority varchar(255), description varchar(255), primary key (id));
 create table Scan (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, scannedAt timestamp, location geometry not null, owner_id varchar(255), primary key (id));
@@ -26,8 +27,8 @@ create table users_Scan (users_id varchar(255) not null, scans_id varchar(255) n
 alter table Acceptance add constraint FK2DB58E779508A040 foreign key (offer_id) references Offer;
 alter table Acceptance add constraint FK2DB58E778A60A2F4 foreign key (card_id) references Card;
 alter table Acceptance add constraint FK2DB58E77FC09DFDB foreign key (owner_id) references users;
-alter table Card add constraint FK1FEF30BC79C03 foreign key (originalCard_id) references Card;
 alter table Card add constraint FK1FEF302AA23CD6 foreign key (lastOffer_id) references Offer;
+alter table Card add constraint FK1FEF30BC79C03 foreign key (originalCard_id) references Card;
 alter table Card add constraint FK1FEF30FC09DFDB foreign key (owner_id) references users;
 alter table CardData add constraint FK3553AFAF9F63EDE foreign key (binaryData_id) references RemoteBinaryObject;
 alter table CardData add constraint FK3553AFA8A60A2F4 foreign key (card_id) references Card;
@@ -77,11 +78,11 @@ insert into role (id, version, authority, description)
 
 -- create accounts for ben, tim, and pete
 insert into users (id, version, username, password, email, invitationalKey, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
-	values ('402881e4-3b14d77f-013b-14d78b42-0007', 1, 'ben.deany', '5f4dcc3b5aa765d61d8327deb882cf99', 'ben.deany@woosh.com', 'hEn6vD3j', true, true, true, true);
+	values ('402881e4-3b14d77f-013b-14d78b42-0007', 1, 'ben.deany', '5f4dcc3b5aa765d61d8327deb882cf99', 'ben.deany@woosh.io', 'F7N3DK', true, true, true, true);
 --insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
---	values ('402881e4-3b14d77f-013b-14d78b43-0008', 1, 'tim.macfarlane', '5f4dcc3b5aa765d61d8327deb882cf99', 'tim@woosh.com', true, true, true, true);
+--	values ('402881e4-3b14d77f-013b-14d78b43-0008', 1, 'tim.macfarlane', '5f4dcc3b5aa765d61d8327deb882cf99', 'tim@woosh.io', true, true, true, true);
 --insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
---	values ('402881e4-3b14d77f-013b-14d78b45-0009', 1, 'pete.chong', '5f4dcc3b5aa765d61d8327deb882cf99', 'pete@woosh.com', true, true, true, true);
+--	values ('402881e4-3b14d77f-013b-14d78b45-0009', 1, 'pete.chong', '5f4dcc3b5aa765d61d8327deb882cf99', 'pete@woosh.io', true, true, true, true);
 		
 	
 --insert into users_role (users_id, authorities_id) values ('ff808081-2d11bfc1-012d-11bfd083-0003', 'ff808081-2d11bee6-012d-11bef683-0003');
@@ -91,15 +92,10 @@ insert into users_role (users_id, authorities_id) values ('402881e4-3b14d77f-013
 --insert into users_role (users_id, authorities_id) values ('402881e4-3b14d77f-013b-14d78b43-0008', 'ff808081-2d11bee6-012d-11bef683-0003');
 --insert into users_role (users_id, authorities_id) values ('402881e4-3b14d77f-013b-14d78b45-0009', 'ff808081-2d11bee6-012d-11bef683-0003');
 
+-- insert required configuration data
+insert into configuration (id, version, key, value)
+	values ('402881e4-44ef42df-0144-ef42eb0c-0007', 0, 'USER_LIMIT', '10');
 
--- insert user record for Thea
---insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
---	values ('402881e4-3c591a48-013c-591a6992-0007', 1, 'thea.hd', '5f4dcc3b5aa765d61d8327deb882cf99', 'thea@woosh.com', true, true, true, true);
---insert into users_role (users_id, authorities_id) values ('402881e4-3c591a48-013c-591a6992-0007', 'ff808081-2d11bee6-012d-11bef683-0003');
-
--- insert user record for Sally
---insert into users (id, version, username, password, email, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled) 
---	values ('402881e4-3c786251-013c-78625bd0-0007', 1, 'sally.mac', '5f4dcc3b5aa765d61d8327deb882cf99', 'sally@woosh.com', true, true, true, true);
---insert into users_role (users_id, authorities_id) values ('402881e4-3c786251-013c-78625bd0-0007', 'ff808081-2d11bee6-012d-11bef683-0003');
-
+insert into configuration (id, version, key, value)
+	values ('402881e4-44ef4f63-0144-ef4f6f3f-0009', 0, 'MOTD', '');
 

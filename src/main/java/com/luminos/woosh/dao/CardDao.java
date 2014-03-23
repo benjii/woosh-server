@@ -24,6 +24,6 @@ public interface CardDao extends GenericWooshDao<Card> {
 	 * @param user
 	 * @return
 	 */
-	List<Card> findAllByOfferStart(User user);
+	List<Card> findAllOrderedByOfferStart(User user);
 
 }

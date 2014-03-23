@@ -1,12 +1,11 @@
 package com.luminos.woosh.controller;
 
-import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
-import com.luminos.woosh.beans.CardDataBean;
 import com.luminos.woosh.beans.OfferBean;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.CardDao;
@@ -33,7 +31,6 @@ import com.luminos.woosh.dao.OfferDao;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.enums.CardDataType;
 import com.luminos.woosh.exception.EntityNotFoundException;
 import com.luminos.woosh.services.BeanConverterService;
 import com.luminos.woosh.services.WooshServices;
@@ -51,6 +48,8 @@ public class WooshController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(WooshController.class);
 	
+	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
 	
 	@Autowired
 	private CardDao cardDao = null;
@@ -74,8 +73,14 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public String ping(HttpServletRequest request) {
-		LOGGER.info("Received ping from: " + request.getRemoteAddr());
-		return "{ \"status\": \"OK\" }";
+		User authenticatedUser = super.getUser();
+
+		LOGGER.info("Received ping reqest from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
+
+		// record that the device ping'd the server
+		wooshServices.recordPing(authenticatedUser);
+		
+		return "{ \"status\": \"OK\", \"server_time\": \"" + SDF.format(Calendar.getInstance().getTime()) + "\" }";
 	}
 	
 	/**
@@ -88,38 +93,17 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt addCard(@RequestBody CardBean card, HttpServletRequest request) {
-		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + super.getUser().getUsername());
-		
-		// TODO refactor into service
-		
-		// create the new card for the user
-		Card newCard = new Card(super.getUser(), card.getName());
-		cardDao.save(newCard);
-		
-		// now create the card data and associate it with the card
-		if (card.getData() != null) {
-			
-			for (CardDataBean dataBean : card.getData()) {
-				if (dataBean.getType() == CardDataType.BINARY) {
-								
-					// this is binary data - decode it
-					byte[] decodedBinary = DatatypeConverter.parseBase64Binary(dataBean.getValue());
-					wooshServices.addBinaryDataToCard(newCard.getClientId(), dataBean.getName(), dataBean.getBinaryId(),
-													  decodedBinary, super.getUser());
+		User authenticatedUser = super.getUser();
 
-				} else {
-					
-					// this is a non-binary (string or similar) attachment
-					wooshServices.addDataToCard(newCard.getClientId(), dataBean.getName(), dataBean.getValue(), super.getUser());					
-					
-				}
-			}
-		}
+		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + authenticatedUser.getUsername());
+
+		// call the create card service
+		Receipt newCardReceipt = wooshServices.createCard(authenticatedUser, card);
 		
-		LOGGER.info("Successfully saved card.");
+		LOGGER.info("Successfully created and saved card " + newCardReceipt.getId());
 		
 		// return a receipt to the client
-		return new Receipt(newCard.getClientId());
+		return newCardReceipt;
 	}
 	
 	/**
@@ -132,8 +116,11 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public CardBean getCard(@PathVariable String id, HttpServletRequest request /*, HttpServletResponse response */) {
-		Card card = cardDao.findByClientId(id, super.getUser());
-		
+		User authenticatedUser = super.getUser();
+
+		// retrieve the card
+		Card card = wooshServices.retrieveCard(id, authenticatedUser);
+
 		if (card == null) {
 			throw new EntityNotFoundException(id, "Card entity does not exist or was deleted.");
 		}
@@ -151,9 +138,10 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt deleteCard(@PathVariable String id, HttpServletResponse response) {
-		
+		User authenticatedUser = super.getUser();
+
 		// delete the card
-		Card deletedCard = wooshServices.deleteCard(id, super.getUser());
+		Card deletedCard = wooshServices.deleteCard(id, authenticatedUser);
 
 		// return a receipt to the client
 		return new Receipt(deletedCard.getClientId());
@@ -167,9 +155,10 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public List<CardBean> getCardsForUser() {
-		
-		// TODO refactor into service
-		List<Card> cards = cardDao.findAllByOfferStart(super.getUser());
+		User authenticatedUser = super.getUser();
+
+		// find all of the available (active) offers for the user
+		List<Card> cards = wooshServices.findAllCards(authenticatedUser);
 
 		return beanConverterService.convertCards(cards);
 	}
@@ -209,15 +198,14 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt expireOffer(@PathVariable String id, HttpServletResponse response) {
-		Offer offerToExpire = offerDao.findByClientId(id);
+		User authenticatedUser = super.getUser();
+
+		// call the service to expire the offer
+		Receipt receipt = wooshServices.expireOffer(id, authenticatedUser);
 		
-		// to expire an offer we simply move the offer end time to be right now
-		// TODO refactor this into a service
-		
-		offerToExpire.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		offerDao.save(offerToExpire);
-				
-		return new Receipt(id);
+		LOGGER.info("Successfully expired offer " + id);		
+
+		return receipt;
 	}
 	
 	/**
@@ -230,10 +218,9 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public List<CandidateOffer> findOffers(@RequestParam Double latitude, @RequestParam Double longitude) {
+		User authenticatedUser = super.getUser();
 		
-		User user = super.getUser();
-		
-		LOGGER.info("Scanning for offers at location (" + latitude + "," + longitude + ") for user: " + user.getUsername());
+		LOGGER.info("Scanning for offers at location (" + latitude + "," + longitude + ") for user: " + authenticatedUser.getUsername());
 
 		// create the point geometry
 		Point location = GeoSpatialUtils.createPoint(latitude, longitude);
@@ -254,9 +241,10 @@ public class WooshController extends AbstractLuminosController {
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
 	public Receipt acceptOffer(@PathVariable String id, HttpServletResponse response) {
+		User authenticatedUser = super.getUser();
 
 		// accept the offer for the user
-		Offer acceptedOffer = wooshServices.acceptOffer(id, super.getUser());
+		Offer acceptedOffer = wooshServices.acceptOffer(id, authenticatedUser);
 		
 		// return a success receipt to the client
 		return new Receipt(acceptedOffer.getClientId());

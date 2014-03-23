@@ -69,8 +69,44 @@ public class LogEntry {
 		return new LogEntry(user, UserAction.PING);
 	}
 
-	public static LogEntry loggedInEntry(User user) {
+	public static LogEntry signedUpEntry(User user) {
 		return new LogEntry(user, UserAction.SIGN_UP);
+	}
+
+	public static LogEntry loggedInEntry(User user) {
+		return new LogEntry(user, UserAction.LOGGED_IN);
+	}
+
+	public static LogEntry createCardEntry(User user) {
+		return new LogEntry(user, UserAction.CREATE_CARD);
+	}
+
+	public static LogEntry retrieveCardEntry(User user) {
+		return new LogEntry(user, UserAction.RETRIEVE_CARD);
+	}
+
+	public static LogEntry deleteCardEntry(User user) {
+		return new LogEntry(user, UserAction.DELETE_CARD);
+	}
+
+	public static LogEntry retrieveAllCardsEntry(User user) {
+		return new LogEntry(user, UserAction.RETRIEVE_ALL_CARDS);
+	}
+
+	public static LogEntry findActiveOffersEntry(User user) {
+		return new LogEntry(user, UserAction.FIND_ACTIVE_OFFERS);
+	}
+
+	public static LogEntry makeOfferEntry(User user) {
+		return new LogEntry(user, UserAction.MAKE_OFFER);
+	}
+
+	public static LogEntry acceptOfferEntry(User user) {
+		return new LogEntry(user, UserAction.ACCEPT_OFFER);
+	}
+
+	public static LogEntry expireOfferEntry(User user) {
+		return new LogEntry(user, UserAction.EXPIRE_OFFER);
 	}
 
 	// end of factory methods

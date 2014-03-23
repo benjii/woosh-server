@@ -8,15 +8,15 @@ import java.util.Random;
  */
 public class RandomString {
 
-	private static final char[] symbols = new char[62];
+	private static final char[] symbols = new char[36];
 
 	static {
 		for (int idx = 0; idx < 10; ++idx)
 			symbols[idx] = (char) ('0' + idx);
 		for (int idx = 10; idx < 36; ++idx)
-			symbols[idx] = (char) ('a' + idx - 10);
-		for (int idx = 36; idx < 62; ++idx)
-			symbols[idx] = (char) ('A' + idx - 36);
+			symbols[idx] = (char) ('A' + idx - 10);
+//		for (int idx = 36; idx < 62; ++idx)
+//			symbols[idx] = (char) ('A' + idx - 36);
 	}
 
 	private final Random random = new Random();

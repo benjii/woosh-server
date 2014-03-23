@@ -30,7 +30,7 @@ public class CardDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Card> imp
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Card> findAllByOfferStart(User user) {
+	public List<Card> findAllOrderedByOfferStart(User user) {
 		return (List<Card>) getSession().createCriteria(Card.class, "c")
 										.createAlias("offers", "o", CriteriaSpecification.LEFT_JOIN)
 										.add(RECORD_IS_NOT_DELETED)

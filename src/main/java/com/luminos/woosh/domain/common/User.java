@@ -35,7 +35,7 @@ public class User implements UserDetails, Comparable<User> {
 
 	private static final long serialVersionUID = 2667226600487694113L;
 
-	private static final Integer INVITATION_KEY_LENGTH = 8;	
+	private static final Integer INVITATION_KEY_LENGTH = 6;	
 
 	public static final User ANONYMOUS_USER = new User("anonymous-user");	
 
