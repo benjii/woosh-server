@@ -103,7 +103,7 @@ public class BeanConverterService {
 		offerBean.setId(offer.getClientId());
 		offerBean.setCardId(offer.getCard().getClientId());
 		offerBean.setLatitude(((Point) offer.getOfferRegion()).getX());
-		offerBean.setLatitude(((Point) offer.getOfferRegion()).getY());
+		offerBean.setLongitude(((Point) offer.getOfferRegion()).getY());
 		offerBean.setOfferStart(offer.getOfferStart());
 		offerBean.setOfferEnd(offer.getOfferEnd());
 		offerBean.setAutoAccept(offer.getAutoAccept());
