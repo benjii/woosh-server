@@ -19,11 +19,6 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.domain.processor.OfferScanProcessor;
-import com.luminos.woosh.domain.serializer.GeometrySerializer;
-import com.luminos.woosh.synchronization.OnEntityCreate;
-import com.luminos.woosh.synchronization.Synchronizable;
-import com.luminos.woosh.synchronization.SynchronizationSerializer;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
 import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
@@ -40,8 +35,8 @@ import com.vividsolutions.jts.geom.Point;
  * @author Ben
  */
 @Entity
-@Synchronizable(alias="scans", order=1)
-@OnEntityCreate(processor=OfferScanProcessor.class)
+//@Synchronizable(alias="scans", order=1)
+//@OnEntityCreate(processor=OfferScanProcessor.class)
 public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 
 	@Id
@@ -73,18 +68,18 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 	// the location at which the woosh occured
 	@Type(type="org.hibernatespatial.GeometryUserType")
 	@Column(nullable=false)
-	@SynchronizationSerializer(serializer=GeometrySerializer.class, reportedSchemaType="WKT String")
+//	@SynchronizationSerializer(serializer=GeometrySerializer.class, reportedSchemaType="WKT String")
 	private Point location = null;
 
-	// the list of offers that were made for this scan
+	// the list of offers that were made because of this scan
 	// many-to-many because one scan can have many offers, and one offer can be scanned for many times
 	@ManyToMany
 	private List<Offer> offers = null;
 
-	// the list of (cloned) cards that were offered for this scan
-	// many-to-many because one scan can have cards, and one card can be scanned for many times
-	@ManyToMany
-	private List<Card> cards = null;
+//	// the list of (cloned) cards that were offered for this scan
+//	// many-to-many because one scan can have cards, and one card can be scanned for many times
+//	@ManyToMany
+//	private List<Card> cards = null;
 	
 	
 	public Scan() {
@@ -112,21 +107,21 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offers.add(offer);
 	}
 
-	/**
-	 * 
-	 * @param card
-	 */
-	public void addCard(Card card) {
-		if (card == null) {
-			throw new IllegalArgumentException("The card argument must not be NULL.");
-		}
-		
-		if (this.cards == null) {
-			this.cards = new ArrayList<Card>();
-		}
-		
-		this.cards.add(card);
-	}
+//	/**
+//	 * 
+//	 * @param card
+//	 */
+//	public void addCard(Card card) {
+//		if (card == null) {
+//			throw new IllegalArgumentException("The card argument must not be NULL.");
+//		}
+//		
+//		if (this.cards == null) {
+//			this.cards = new ArrayList<Card>();
+//		}
+//		
+//		this.cards.add(card);
+//	}
 
 	
 	public String getId() {
@@ -209,12 +204,12 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offers = offers;
 	}
 
-	public List<Card> getCards() {
-		return cards;
-	}
-
-	public void setCards(List<Card> cards) {
-		this.cards = cards;
-	}
+//	public List<Card> getCards() {
+//		return cards;
+//	}
+//
+//	public void setCards(List<Card> cards) {
+//		this.cards = cards;
+//	}
 
 }

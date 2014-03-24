@@ -22,7 +22,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import com.luminos.woosh.beans.CandidateOffer;
 import com.luminos.woosh.beans.CardBean;
-import com.luminos.woosh.beans.OfferBean;
+import com.luminos.woosh.beans.MakeOfferBean;
 import com.luminos.woosh.beans.PingResponse;
 import com.luminos.woosh.beans.Receipt;
 import com.luminos.woosh.dao.CardDao;
@@ -168,7 +168,7 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/m/offer", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public Receipt makeOffer(@RequestBody OfferBean offer) {
+	public Receipt makeOffer(@RequestBody MakeOfferBean offer) {
 
 		LOGGER.info("Creating new offer for card '" + offer.getCardId() + "' for user: " + super.getUser().getUsername());
 

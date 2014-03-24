@@ -7,6 +7,7 @@ import com.luminos.woosh.domain.common.User;
  * 
  * @author Ben
  */
+@Deprecated
 public interface Processor<T, R> {
 
 	/**

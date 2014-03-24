@@ -383,42 +383,41 @@ public class WooshServices {
 		// process each of the available offers
 		for (Offer offer : availableOffers) {
 			
-			// for every offer we;
-			//  a) clone the offered card;
-			//  b) record an acceptance on the card (if it is auto-accept);
-			//  c) create an offer bean (with the bean version of the cloned card);
-			//  d) return the full list to the client
+			// for every offer we create a candidate offer
 			
-			// clone the card
-			Card cardForOffer = offer.getCard().clone(user);
-			cardDao.save(cardForOffer);
+//			// clone the card
+//			Card cardForOffer = offer.getCard().clone(user, offer);
+//			cardDao.save(cardForOffer);
+//			
+//			// create the relevant acceptance entity
+//			Acceptance acceptance = null;
+//			if (offer.getAutoAccept()) {
+//				acceptance = new Acceptance(user, cardForOffer, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
+//			} else {
+//				acceptance = new Acceptance(user, cardForOffer, offer);				
+//			}
+//			acceptanceDao.save(acceptance);
 			
-			// create the relevant acceptance entity
-			Acceptance acceptance = null;
-			if (offer.getAutoAccept()) {
-				acceptance = new Acceptance(user, cardForOffer, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-			} else {
-				acceptance = new Acceptance(user, cardForOffer, offer);				
-			}
-			acceptanceDao.save(acceptance);
-			
-			// record the offered card and the offer itself on the scan
-			scan.addCard(cardForOffer);
+			// record the offered card (and the offer itself) on the scan
+//			scan.addCard(cardForOffer);
 			scan.addOffer(offer);
 			scanDao.save(scan);
 			
 			User copyOfUser = userDao.findByUsername(user.getUsername());
 			
 			// record all of this against the user
-			copyOfUser.addCard(cardForOffer);
-			copyOfUser.addAcceptance(acceptance);
+			copyOfUser.addCard(offer.getCard());
+//			copyOfUser.addAcceptance(acceptance);
 			copyOfUser.addScan(scan);
 			
 			userDao.save(copyOfUser);
 
 			// now convert the offer and card to beans
-			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);
-			CandidateOffer bean = new CandidateOffer(offer.getClientId(), cardForOfferBean);
+//			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);
+//			CandidateOffer bean = new CandidateOffer(offer.getClientId(), cardForOfferBean);
+
+			CardBean cardBeingOffered = beanConverterService.convertCard(offer.getCard());
+			CandidateOffer bean = new CandidateOffer(offer.getClientId(), cardBeingOffered);
 
 			beans.add(bean);
 		}
@@ -443,11 +442,28 @@ public class WooshServices {
 			throw new EntityNotFoundException(offerId, "Offer entity does not exist or was deleted.");
 		}
 		
-		// update the offer to be accepted
-		Acceptance acceptance = acceptanceDao.findForOffer(offer, user);
-		acceptance.setAccepted(Boolean.TRUE);
-		acceptance.setAcceptedAt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		// when an offer is accepted we;
+		//	1. clone the card that was offered
+		//	2. record the acceptance of that offer
+		
+		// clone the card
+		Card clonedCard = offer.getCard().clone(user, offer);
+		cardDao.save(clonedCard);
+
+		// record the acceptance
+		Acceptance acceptance = new Acceptance(user, clonedCard, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		acceptanceDao.save(acceptance);
+		
+		User copyOfUser = userDao.findByUsername(user.getUsername());
+		
+		// record all of this against the user
+		copyOfUser.addCard(clonedCard);
+		copyOfUser.addAcceptance(acceptance);
+
+//		// update the offer to be accepted
+//		Acceptance acceptance = acceptanceDao.findForOffer(offer, user);
+//		acceptance.setAccepted(Boolean.TRUE);
+//		acceptance.setAcceptedAt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		
 		// record the action in the database log
 		logEntryDao.save(LogEntry.acceptOfferEntry(user));			

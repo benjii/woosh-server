@@ -13,7 +13,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.synchronization.Synchronizable;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
 import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
@@ -27,7 +26,7 @@ import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
  * @author Ben
  */
 @Entity
-@Synchronizable(alias="acceptances")
+//@Synchronizable(alias="acceptances")
 public class Acceptance implements WritableSynchronizationEntity, UserScopedEntity {
 
 	@Id
@@ -53,11 +52,11 @@ public class Acceptance implements WritableSynchronizationEntity, UserScopedEnti
 	@SynchronizeIgnore
 	private User owner = null;
 
-	// the (cloned from the original) card that may be accepted
+	// the (cloned from the original) card that was be accepted
 	@OneToOne
 	private Card card = null;
 
-	// the offer that may be accepted
+	// the offer that was be accepted
 	@OneToOne
 	private Offer offer = null;
 	

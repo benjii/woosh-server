@@ -18,9 +18,7 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.domain.serializer.GeometrySerializer;
 import com.luminos.woosh.synchronization.Synchronizable;
-import com.luminos.woosh.synchronization.SynchronizationSerializer;
 import com.luminos.woosh.synchronization.SynchronizeChildCollection;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
@@ -85,7 +83,7 @@ public class Offer implements WritableSynchronizationEntity, UserScopedEntity {
 	// this is approximately 2-3 metres)
 	@Type(type="org.hibernatespatial.GeometryUserType")
 	@Column(nullable=false)
-	@SynchronizationSerializer(serializer=GeometrySerializer.class, reportedSchemaType="WKT String")
+//	@SynchronizationSerializer(serializer=GeometrySerializer.class, reportedSchemaType="WKT String")
 	private Geometry offerRegion = null;
 	
 	// true if this offer is auto-accepted by the scanner

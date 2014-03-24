@@ -91,7 +91,7 @@ public class User implements UserDetails, Comparable<User> {
 	private List<Acceptance> acceptances = null;
 
 	// we keep a log of the scans (wooshes) that a user performs
-	@OneToMany
+	@ManyToMany
 	private List<Scan> scans = null;
 	
 	

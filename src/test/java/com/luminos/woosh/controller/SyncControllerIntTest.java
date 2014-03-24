@@ -565,7 +565,7 @@ public class SyncControllerIntTest extends AbstractLuminosIntegrationTest {
 		offerDao.save(offer);
 		
 		// create the card that the user would get from the scan
-		Card cardForEndUser = card.clone(END_USER);
+		Card cardForEndUser = card.clone(END_USER, offer);
 		cardDao.save(cardForEndUser);
 		
 		Acceptance acceptance = new Acceptance(END_USER, cardForEndUser, offer);

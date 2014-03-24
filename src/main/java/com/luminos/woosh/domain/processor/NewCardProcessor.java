@@ -10,6 +10,7 @@ import com.luminos.woosh.synchronization.Processor;
  * 
  * @author Ben
  */
+@Deprecated
 public class NewCardProcessor implements Processor<Card, Card> {
 
 	@Override

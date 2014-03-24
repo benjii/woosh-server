@@ -17,6 +17,7 @@ import com.luminos.woosh.synchronization.Processor;
  * 
  * @author Ben
  */
+@Deprecated
 public class OfferScanProcessor implements Processor<Scan, List<Card>> {
 
 	/**
@@ -33,7 +34,7 @@ public class OfferScanProcessor implements Processor<Scan, List<Card>> {
 		for (Offer offer : offers) {
 
 			// clone the card
-			Card cardForOffer = offer.getCard().clone(user);
+			Card cardForOffer = offer.getCard().clone(user, offer);
 			repository.save(cardForOffer);
 			
 			cards.add(cardForOffer);
@@ -50,7 +51,7 @@ public class OfferScanProcessor implements Processor<Scan, List<Card>> {
 			repository.save(acceptance);
 
 			// store the offer and acceptance entities on the scan
-			scan.addCard(cardForOffer);
+//			scan.addCard(cardForOffer);
 			scan.addOffer(offer);
 			
 			// record all data against the user and flush to the database

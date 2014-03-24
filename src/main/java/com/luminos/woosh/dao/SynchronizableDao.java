@@ -13,6 +13,7 @@ import com.luminos.woosh.synchronization.Synchronizable;
  * 
  * @author Ben
  */
+@Deprecated
 public interface SynchronizableDao extends GenericWooshDao<Synchronizable> {
 
 	/**

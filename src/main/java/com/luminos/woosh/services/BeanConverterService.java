@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.luminos.woosh.beans.CardBean;
 import com.luminos.woosh.beans.CardDataBean;
+import com.luminos.woosh.beans.OfferBean;
 import com.luminos.woosh.domain.Card;
 import com.luminos.woosh.domain.CardData;
+import com.luminos.woosh.domain.Offer;
 import com.luminos.woosh.enums.CardDataType;
 import com.luminos.woosh.synchronization.service.CloudServiceProxy;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * 
@@ -34,12 +37,21 @@ public class BeanConverterService {
 	public CardBean convertCard(Card card) {
 		if (card == null) return null;
 		
-		CardBean cardBean = new CardBean(card);
+		CardBean cardBean = new CardBean(card.getClientId(), card.getName());
 		
+		// create beans for all of the data objects
 		if (card.getData() != null) {
 			for (CardData data : card.getData()) {
 				cardBean.addDatum(this.convertCardDataToBean(data));
 			}			
+		}
+		
+		// create offer beans
+		if (card.getLastOffer() != null) {
+			cardBean.setLastOffer(this.convertOffer(card.getLastOffer()));			
+		}
+		if (card.getFromOffer() != null) {
+			cardBean.setFromOffer(this.convertOffer(card.getFromOffer()));			
 		}
 		
 		return cardBean;		
@@ -55,21 +67,19 @@ public class BeanConverterService {
 		List<CardBean> beans = new ArrayList<CardBean>();
 		
 		for (Card card : cards) {
-			CardBean cardBean = new CardBean(card.getClientId(), card.getName(), card.getLastOffer());
-			
-			if (card.getData() != null) {
-				for (CardData data : card.getData()) {
-					cardBean.addDatum(this.convertCardDataToBean(data));
-				}
-			}
-			
+			CardBean cardBean = this.convertCard(card); //new CardBean(card.getClientId(), card.getName()/*, card.getLastOffer(), card.getFromOffer()*/);
+						
 			beans.add(cardBean);
 		}
 		
 		return beans;		
 	}
 	
-	
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	private CardDataBean convertCardDataToBean(CardData data) {
 		CardDataBean dataBean = null;
 		
@@ -82,5 +92,23 @@ public class BeanConverterService {
 		return dataBean;
 	}
 	
+	/**
+	 * 
+	 * @param offer
+	 * @return
+	 */
+	private OfferBean convertOffer(Offer offer) {
+		OfferBean offerBean = new OfferBean();
+		
+		offerBean.setId(offer.getClientId());
+		offerBean.setCardId(offer.getCard().getClientId());
+		offerBean.setLatitude(((Point) offer.getOfferRegion()).getX());
+		offerBean.setLatitude(((Point) offer.getOfferRegion()).getY());
+		offerBean.setOfferStart(offer.getOfferStart());
+		offerBean.setOfferEnd(offer.getOfferEnd());
+		offerBean.setAutoAccept(offer.getAutoAccept());
+		
+		return offerBean;
+	}	
 	
 }

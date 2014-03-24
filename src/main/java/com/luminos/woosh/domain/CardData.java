@@ -14,7 +14,6 @@ import org.hibernate.annotations.Parameter;
 
 import com.luminos.woosh.domain.common.RemoteBinaryObject;
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.synchronization.Synchronizable;
 import com.luminos.woosh.synchronization.SynchronizeChildCollection;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
@@ -26,7 +25,7 @@ import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
  * @author Ben
  */
 @Entity
-@Synchronizable(alias="carddata")
+//@Synchronizable(alias="carddata")
 public class CardData implements WritableSynchronizationEntity, UserScopedEntity {
 
 	@Id

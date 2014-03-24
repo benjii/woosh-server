@@ -1,40 +1,27 @@
 package com.luminos.woosh.beans;
 
-import java.sql.Timestamp;
 
 /**
  * 
  * @author Ben
  */
-public class OfferBean {
+public class MakeOfferBean {
 
-	private String id = null;
-	
 	private String cardId = null;
 	
-	private Timestamp offerStart = null;
+	private Integer duration = null;
 
-	private Timestamp offerEnd = null;
-	
 	private Double latitude = null;
 
 	private Double longitude = null;
-	
+
 	private Boolean autoAccept = null;
 
 	
-	public OfferBean() {
+	public MakeOfferBean() {
 		
 	}
 
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	public String getCardId() {
 		return cardId;
@@ -44,20 +31,12 @@ public class OfferBean {
 		this.cardId = cardId;
 	}
 
-	public Timestamp getOfferStart() {
-		return offerStart;
+	public Integer getDuration() {
+		return duration;
 	}
 
-	public void setOfferStart(Timestamp offerStart) {
-		this.offerStart = offerStart;
-	}
-
-	public Timestamp getOfferEnd() {
-		return offerEnd;
-	}
-
-	public void setOfferEnd(Timestamp offerEnd) {
-		this.offerEnd = offerEnd;
+	public void setDuration(Integer duration) {
+		this.duration = duration;
 	}
 
 	public Double getLatitude() {

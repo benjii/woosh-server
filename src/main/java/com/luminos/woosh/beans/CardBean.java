@@ -1,11 +1,7 @@
 package com.luminos.woosh.beans;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.luminos.woosh.domain.Card;
-import com.luminos.woosh.domain.Offer;
 
 /**
  * 
@@ -17,12 +13,22 @@ public class CardBean {
 
 	private String name = null;
 
-	private Timestamp lastOfferStart = null;
-
-	private Timestamp lastOfferEnd = null;
-
-	private String lastOfferId = null;
+	private OfferBean lastOffer = null;
 	
+	private OfferBean fromOffer = null;
+	
+//	private Timestamp lastOfferStart = null;
+//
+//	private Timestamp lastOfferEnd = null;
+//
+//	private String lastOfferId = null;
+//
+//	private Timestamp fromOfferStart = null;
+//
+//	private Timestamp fromOfferEnd = null;
+//
+//	private String fromOfferId = null;
+
 	private List<CardDataBean> data = null;
 
 	
@@ -30,24 +36,34 @@ public class CardBean {
 		// default constructor required by Spring MVC
 	}
 
-	public CardBean(Card card) {
-		this.id = card.getClientId();
-		this.name = card.getName();
-		if (card.getLastOffer() != null) {
-			this.lastOfferStart = card.getLastOffer().getOfferStart();
-			this.lastOfferEnd = card.getLastOffer().getOfferEnd();
-			this.lastOfferId = card.getLastOffer().getClientId();
-		}
-	}
+//	public CardBean(Card card) {
+//		this.id = card.getClientId();
+//		this.name = card.getName();
+////		if (card.getLastOffer() != null) {
+////			this.lastOfferStart = card.getLastOffer().getOfferStart();
+////			this.lastOfferEnd = card.getLastOffer().getOfferEnd();
+////			this.lastOfferId = card.getLastOffer().getClientId();
+////		}
+////		if (card.getFromOffer() != null) {
+////			this.fromOfferStart = card.getFromOffer().getOfferStart();
+////			this.fromOfferEnd = card.getFromOffer().getOfferEnd();
+////			this.fromOfferId = card.getFromOffer().getClientId();
+////		}
+//	}
 	
-	public CardBean(String id, String name, Offer lastOffer) {
+	public CardBean(String id, String name /*, Offer lastOffer, Offer fromOffer */) {
 		this.id = id;
 		this.name = name;
-		if (lastOffer != null) {
-			this.lastOfferStart = lastOffer.getOfferStart();
-			this.lastOfferEnd = lastOffer.getOfferEnd();
-			this.lastOfferId = lastOffer.getClientId();
-		}
+//		if (lastOffer != null) {
+//			this.lastOfferStart = lastOffer.getOfferStart();
+//			this.lastOfferEnd = lastOffer.getOfferEnd();
+//			this.lastOfferId = lastOffer.getClientId();
+//		}
+//		if (fromOffer != null) {
+//			this.fromOfferStart = fromOffer.getOfferStart();
+//			this.fromOfferEnd = fromOffer.getOfferEnd();
+//			this.fromOfferId = fromOffer.getClientId();
+//		}
 	}
 
 
@@ -75,28 +91,20 @@ public class CardBean {
 		this.name = name;
 	}
 
-	public Timestamp getLastOfferStart() {
-		return lastOfferStart;
+	public OfferBean getLastOffer() {
+		return lastOffer;
 	}
 
-	public void setLastOfferStart(Timestamp lastOfferStart) {
-		this.lastOfferStart = lastOfferStart;
+	public void setLastOffer(OfferBean lastOffer) {
+		this.lastOffer = lastOffer;
 	}
 
-	public Timestamp getLastOfferEnd() {
-		return lastOfferEnd;
+	public OfferBean getFromOffer() {
+		return fromOffer;
 	}
 
-	public void setLastOfferEnd(Timestamp lastOfferEnd) {
-		this.lastOfferEnd = lastOfferEnd;
-	}
-
-	public String getLastOfferId() {
-		return lastOfferId;
-	}
-
-	public void setLastOfferId(String lastOfferId) {
-		this.lastOfferId = lastOfferId;
+	public void setFromOffer(OfferBean fromOffer) {
+		this.fromOffer = fromOffer;
 	}
 
 	public List<CardDataBean> getData() {

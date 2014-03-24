@@ -21,10 +21,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.domain.processor.NewCardProcessor;
 import com.luminos.woosh.enums.ShareMethod;
-import com.luminos.woosh.synchronization.OnEntityCreate;
-import com.luminos.woosh.synchronization.Synchronizable;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
 import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
@@ -44,8 +41,8 @@ import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
  * @author Ben
  */
 @Entity
-@Synchronizable(alias="cards", order=2)
-@OnEntityCreate(processor=NewCardProcessor.class)
+//@Synchronizable(alias="cards", order=2)
+//@OnEntityCreate(processor=NewCardProcessor.class)
 public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 
 	public static final Integer UNLIMITED_ACCEPTS = Integer.MAX_VALUE;
@@ -87,19 +84,23 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	
 	// cards can have a maximum number of 'hops' (that is, the maximum number of times that an order can be 'forwarded')
 	private Integer maximumHops = DEFAULT_MAXIMUM_HOPS;
-
-	@OneToOne
-	private Offer lastOffer = null;
 	
 	// the method by which the card is shared between users
 	@Enumerated(value=EnumType.STRING)
 	private ShareMethod shareMethod = ShareMethod.CLONE;
 	
-	// when an offer is made it is cloned, and the same is done for the card for that offer
-	// if this is a cloned offer then this is the original
+	// when an offer is accepted the original card is cloned
 	@OneToOne
 	private Card originalCard = null;
+
+	// this is the offer from which this card was accepted
+	@OneToOne
+	private Offer fromOffer = null;
 	
+	// this is the most recent offer made
+	@OneToOne
+	private Offer lastOffer = null;
+
 	// the list of offers that have been based on this card
 	@OneToMany
 	@Cascade(value=CascadeType.ALL)
@@ -120,12 +121,15 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	}
 
 	
-	public Card(User owner, String name, Integer maximumAccepts, Integer maximumRedemptions, Integer maximumHops, Card originalCard) {
+	public Card(User owner, String name, Integer maximumAccepts, Integer maximumRedemptions, Integer maximumHops,
+				Offer fromOffer, Card originalCard) {
+
 		this.owner = owner;
 		this.name = name;
 		this.maximumAccepts = maximumAccepts;
 		this.maximumRedemptions = maximumRedemptions;
 		this.maximumHops = maximumHops;
+		this.fromOffer = fromOffer;
 		this.originalCard = originalCard;
 	}
 
@@ -136,8 +140,8 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	 * @param user
 	 * @return
 	 */
-	public Card clone(User user) {
-		Card card = new Card(user, this.name, this.maximumAccepts, this.maximumRedemptions, this.maximumHops, this);
+	public Card clone(User user, Offer fromOffer) {
+		Card card = new Card(user, this.name, this.maximumAccepts, this.maximumRedemptions, this.maximumHops, fromOffer, this);
 		
 		if (this.data != null) {
 			for (CardData datum : this.getData())  {
@@ -289,20 +293,36 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		this.maximumHops = maximumHops;
 	}
 
-	public Offer getLastOffer() {
-		return lastOffer;
-	}
-
-	public void setLastOffer(Offer lastOffer) {
-		this.lastOffer = lastOffer;
-	}
-
 	public ShareMethod getShareMethod() {
 		return shareMethod;
 	}
 
 	public void setShareMethod(ShareMethod shareMethod) {
 		this.shareMethod = shareMethod;
+	}
+
+	public Card getOriginalCard() {
+		return originalCard;
+	}
+
+	public void setOriginalCard(Card originalCard) {
+		this.originalCard = originalCard;
+	}
+
+	public Offer getFromOffer() {
+		return fromOffer;
+	}
+
+	public void setFromOffer(Offer fromOffer) {
+		this.fromOffer = fromOffer;
+	}
+
+	public Offer getLastOffer() {
+		return lastOffer;
+	}
+
+	public void setLastOffer(Offer lastOffer) {
+		this.lastOffer = lastOffer;
 	}
 
 	public List<Offer> getOffers() {
@@ -321,12 +341,4 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		this.data = data;
 	}
 
-	public Card getOriginalCard() {
-		return originalCard;
-	}
-
-	public void setOriginalCard(Card originalCard) {
-		this.originalCard = originalCard;
-	}
-	
 }
