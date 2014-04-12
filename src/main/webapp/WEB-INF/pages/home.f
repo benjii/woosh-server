@@ -52,11 +52,11 @@
 	</div>
 
 	<div id='gfx'>
-		<img src="/woosh/resources/demo01_30fps_64colours.gif" alt="Woosh" width="480" height="360">
+		<img src="/resources/demo01_30fps_64colours.gif" alt="Woosh" width="480" height="360">
 	</div>
 
 	<div id='copy'>
-		<p>Developer? Click <a href="woosh/restapi">here</a> to find out about the API.</i>
+		<p>Developer? Click <a href="/restapi">here</a> to find out about the API.</i>
 	</div>
 	
 </body>

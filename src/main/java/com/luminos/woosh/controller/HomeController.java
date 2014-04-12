@@ -33,9 +33,12 @@ public class HomeController extends AbstractLuminosController {
 	@Autowired
 	private ScanDao scanDao = null;
 
-	
+
+	/**
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value={ "/home", "/" }, method=RequestMethod.GET)
-//	@Secured({ "ROLE_USER" })
 	public ModelAndView home() {
 		
 		// the Woosh home page just shows a few system statistics right now
@@ -53,19 +56,45 @@ public class HomeController extends AbstractLuminosController {
 		return mav;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value={ "/support" }, method=RequestMethod.GET)
+	public ModelAndView support() {
+		return new ModelAndView("support");
+	}
+
+	@RequestMapping(value={ "/eula" }, method=RequestMethod.GET)
+	public ModelAndView eula() {
+		return new ModelAndView("eula");
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value={ "/syncsvc" }, method=RequestMethod.GET)
-//	@Secured({ "ROLE_USER" })
 	@Deprecated
 	public ModelAndView synchronizationService() {
 		return new ModelAndView("syncsvc");
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value={ "/restapi" }, method=RequestMethod.GET)
-//	@Secured({ "ROLE_USER" })
 	public ModelAndView restfulApi() {
 		return new ModelAndView("restapi");
 	}
 
+	/**
+	 * 
+	 * @param err
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping(value="/login", method=RequestMethod.GET)
 	public ModelAndView login(@RequestParam(required=false) final String err, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView("login");
