@@ -191,6 +191,26 @@ public class WooshController extends AbstractLuminosController {
 	 * @param response
 	 * @return
 	 */
+	@RequestMapping(value="/m/offer/report/{id}", method=RequestMethod.POST)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public Receipt reportOffer(@PathVariable String id, HttpServletResponse response) {
+		User authenticatedUser = super.getUser();
+
+		// call the service to expire the offer
+		Receipt receipt = wooshServices.reportOffer(id, authenticatedUser);
+		
+		LOGGER.info("Successfully reported offer " + id);		
+
+		return receipt;
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping(value="/m/offer/expire/{id}", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody

@@ -113,6 +113,10 @@ public class LogEntry {
 		return new LogEntry(user, UserAction.EXPIRE_OFFER);
 	}
 
+	public static LogEntry reportOfferEntry(User user) {
+		return new LogEntry(user, UserAction.REPORT_OFFER);
+	}
+
 	// end of factory methods
 	
 

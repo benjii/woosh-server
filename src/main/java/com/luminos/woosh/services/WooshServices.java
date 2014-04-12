@@ -384,22 +384,8 @@ public class WooshServices {
 		for (Offer offer : availableOffers) {
 			
 			// for every offer we create a candidate offer
-			
-//			// clone the card
-//			Card cardForOffer = offer.getCard().clone(user, offer);
-//			cardDao.save(cardForOffer);
-//			
-//			// create the relevant acceptance entity
-//			Acceptance acceptance = null;
-//			if (offer.getAutoAccept()) {
-//				acceptance = new Acceptance(user, cardForOffer, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-//			} else {
-//				acceptance = new Acceptance(user, cardForOffer, offer);				
-//			}
-//			acceptanceDao.save(acceptance);
-			
+	
 			// record the offered card (and the offer itself) on the scan
-//			scan.addCard(cardForOffer);
 			scan.addOffer(offer);
 			scanDao.save(scan);
 			
@@ -407,14 +393,9 @@ public class WooshServices {
 			
 			// record all of this against the user
 			copyOfUser.addCard(offer.getCard());
-//			copyOfUser.addAcceptance(acceptance);
 			copyOfUser.addScan(scan);
 			
 			userDao.save(copyOfUser);
-
-			// now convert the offer and card to beans
-//			CardBean cardForOfferBean = beanConverterService.convertCard(cardForOffer);
-//			CandidateOffer bean = new CandidateOffer(offer.getClientId(), cardForOfferBean);
 
 			CardBean cardBeingOffered = beanConverterService.convertCard(offer.getCard());
 			CandidateOffer bean = new CandidateOffer(offer.getClientId(), cardBeingOffered);
@@ -489,6 +470,28 @@ public class WooshServices {
 
 		return new Receipt(offerToExpire.getClientId());
 	}
+
+	/**
+	 * 
+	 * @param id
+	 * @param user
+	 * @return
+	 */
+	@Transactional
+	public Receipt reportOffer(String id, User user) {
+		Offer offerToReport = offerDao.findByClientId(id);
+
+		// when an offer is reported we expire and delete the offer
+		offerToReport.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		offerToReport.setDeleted(Boolean.TRUE);
+		offerDao.save(offerToReport);
+		
+		// record the action in the database log
+		logEntryDao.save(LogEntry.reportOfferEntry(user));			
+
+		return new Receipt(offerToReport.getClientId());
+	}
+
 
 	/**
 	 * 
