@@ -49,7 +49,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		// than the user that is 'logged in'.
 		
 		// create a card that can be offered
-		Card card = new Card(OFFERING_USER, "Test");
+		Card card = new Card(OFFERING_USER /*, "Test" */);
 		cardDao.save(card);
 
 		// offer the card
@@ -76,7 +76,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 	public void acceptingYourOwnOffersIsPrevented() {
 
 		// create a card that can be offered
-		Card card = new Card(END_USER, "Test");
+		Card card = new Card(END_USER /*, "Test" */);
 		cardDao.save(card);
 
 		// offer the card
@@ -103,7 +103,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 	public void alreadyAcceptedOffersAreNotPresentedAgain() {
 
 		// create a card that can be offered
-		Card card = new Card(OFFERING_USER, "Test");
+		Card card = new Card(OFFERING_USER /*, "Test" */);
 		cardDao.save(card);
 
 		// offer the card
@@ -116,7 +116,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		acceptanceDao.save(acceptance);
 
 		// create another card that can be offered
-		Card card2 = new Card(OFFERING_USER, "Test Two");
+		Card card2 = new Card(OFFERING_USER /*, "Test Two" */);
 		cardDao.save(card2);
 
 		// offer the card

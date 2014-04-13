@@ -90,7 +90,8 @@ public class WooshController extends AbstractLuminosController {
 	public Receipt addCard(@RequestBody CardBean card, HttpServletRequest request) {
 		User authenticatedUser = super.getUser();
 
-		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + authenticatedUser.getUsername());
+//		LOGGER.info("Creating new card named '" + card.getName() + "' for user: " + authenticatedUser.getUsername());
+		LOGGER.info("Creating new card for user: " + authenticatedUser.getUsername());
 
 		// call the create card service
 		Receipt newCardReceipt = wooshServices.createCard(authenticatedUser, card);

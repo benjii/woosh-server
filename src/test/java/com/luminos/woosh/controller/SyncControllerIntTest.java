@@ -225,12 +225,12 @@ public class SyncControllerIntTest extends AbstractLuminosIntegrationTest {
 		assertEquals(1, super.countRowsInTable("CardData"));
 		
 		Card postedCard = cardDao.findByClientId("b159b2dd-59c3-48c0-9c6d-e0c382f54439");
-		assertEquals("Card name was not correct.", postedCard.getName(), "Bar");
+//		assertEquals("Card name was not correct.", postedCard.getName(), "Bar");
 		assertEquals("Card client version was not correct.", postedCard.getVersion(), (Integer)2);
 		
 		CardData postedData = cardDataDao.findByClientId("1c5cf4fe-558e-4033-b11c-bde2be160ae4");
 		assertEquals(postedData.getName(), "Baz");
-		assertEquals(postedData.getCard().getName(), "Bar");		
+//		assertEquals(postedData.getCard().getName(), "Bar");		
 	}
 
 	@Test
@@ -640,7 +640,7 @@ public class SyncControllerIntTest extends AbstractLuminosIntegrationTest {
 
 	private Card createSampleCard(User user) {		
 		// create a sample card
-		Card card = new Card(user, "Foo");
+		Card card = new Card(user /*, "Foo" */);
 		CardData data = new CardData(user, "Hello, ", "world!", card);
 
 		// save the card

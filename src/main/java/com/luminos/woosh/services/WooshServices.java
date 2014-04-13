@@ -210,7 +210,7 @@ public class WooshServices {
 	public Receipt createCard(User user, CardBean card) {
 
 		// create the new card for the user
-		Card newCard = new Card(user, card.getName());
+		Card newCard = new Card(user /*, card.getName() */);
 		cardDao.save(newCard);
 		
 		// now create the card data and associate it with the card
@@ -435,17 +435,12 @@ public class WooshServices {
 		Acceptance acceptance = new Acceptance(user, clonedCard, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		acceptanceDao.save(acceptance);
 		
-		User copyOfUser = userDao.findByUsername(user.getUsername());
+		User refreshedUser = userDao.findByUsername(user.getUsername());
 		
 		// record all of this against the user
-		copyOfUser.addCard(clonedCard);
-		copyOfUser.addAcceptance(acceptance);
+		refreshedUser.addCard(clonedCard);
+		refreshedUser.addAcceptance(acceptance);
 
-//		// update the offer to be accepted
-//		Acceptance acceptance = acceptanceDao.findForOffer(offer, user);
-//		acceptance.setAccepted(Boolean.TRUE);
-//		acceptance.setAcceptedAt(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		
 		// record the action in the database log
 		logEntryDao.save(LogEntry.acceptOfferEntry(user));			
 
@@ -480,12 +475,26 @@ public class WooshServices {
 	@Transactional
 	public Receipt reportOffer(String id, User user) {
 		Offer offerToReport = offerDao.findByClientId(id);
-
+		
+		// when an offer is reported we want to flag the original card as well as the card clone that
+		// was created when the objecting user accepted the card
+		Card originalCardToReport = offerToReport.getCard();
+				
+		Acceptance acceptance = acceptanceDao.findForOffer(offerToReport, user);
+		Card clonedCardToReport = acceptance.getCard();
+		
 		// when an offer is reported we expire and delete the offer
 		offerToReport.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		offerToReport.setDeleted(Boolean.TRUE);
 		offerDao.save(offerToReport);
 		
+		// also delete the cards
+		originalCardToReport.setDeleted(Boolean.TRUE);
+		cardDao.save(originalCardToReport);
+
+		clonedCardToReport.setDeleted(Boolean.TRUE);
+		cardDao.save(clonedCardToReport);
+
 		// record the action in the database log
 		logEntryDao.save(LogEntry.reportOfferEntry(user));			
 
@@ -512,7 +521,7 @@ public class WooshServices {
 		}
 
 		// create the remote binary object pointer to store locally
-		RemoteBinaryObject rbo = new RemoteBinaryObject(user, binaryId /*UUID.randomUUID().toString()*/);
+		RemoteBinaryObject rbo = new RemoteBinaryObject(user, binaryId);
 			
 		// upload to S3
 		cloudServiceProxy.upload(rbo, binary);

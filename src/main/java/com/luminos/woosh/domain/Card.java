@@ -41,8 +41,6 @@ import com.luminos.woosh.synchronization.WritableSynchronizationEntity;
  * @author Ben
  */
 @Entity
-//@Synchronizable(alias="cards", order=2)
-//@OnEntityCreate(processor=NewCardProcessor.class)
 public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 
 	public static final Integer UNLIMITED_ACCEPTS = Integer.MAX_VALUE;
@@ -74,7 +72,7 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	@SynchronizeIgnore
 	private User owner = null;
 	
-	private String name = null;
+//	private String name = null;
 	
 	// card offers can have a maximum number of candidate acceptances
 	private Integer maximumAccepts = UNLIMITED_ACCEPTS;
@@ -115,17 +113,17 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		
 	}
 
-	public Card(User owner, String name) {
+	public Card(User owner /*, String name */) {
 		this.owner = owner;
-		this.name = name;
+//		this.name = name;
 	}
 
 	
-	public Card(User owner, String name, Integer maximumAccepts, Integer maximumRedemptions, Integer maximumHops,
+	public Card(User owner, /* String name, */ Integer maximumAccepts, Integer maximumRedemptions, Integer maximumHops,
 				Offer fromOffer, Card originalCard) {
 
 		this.owner = owner;
-		this.name = name;
+//		this.name = name;
 		this.maximumAccepts = maximumAccepts;
 		this.maximumRedemptions = maximumRedemptions;
 		this.maximumHops = maximumHops;
@@ -141,7 +139,7 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	 * @return
 	 */
 	public Card clone(User user, Offer fromOffer) {
-		Card card = new Card(user, this.name, this.maximumAccepts, this.maximumRedemptions, this.maximumHops, fromOffer, this);
+		Card card = new Card(user, /* this.name, */ this.maximumAccepts, this.maximumRedemptions, this.maximumHops, fromOffer, this);
 		
 		if (this.data != null) {
 			for (CardData datum : this.getData())  {
@@ -161,12 +159,8 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		if (this.lastOffer == null) {
 			return false;
 		}
-//		if (this.lastOfferStart == null || this.lastOfferEnd == null) {
-//			return false;
-//		}
 
 		Timestamp now = new Timestamp(Calendar.getInstance().getTimeInMillis());
-//		return now.after(this.lastOfferStart) && now.before(this.lastOfferEnd);
 		return now.after(lastOffer.getOfferStart()) && now.before(lastOffer.getOfferEnd());
 
 	}
@@ -261,13 +255,13 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		this.owner = owner;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+//	public String getName() {
+//		return name;
+//	}
+//
+//	public void setName(String name) {
+//		this.name = name;
+//	}
 
 	public Integer getMaximumAccepts() {
 		return maximumAccepts;

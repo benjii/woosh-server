@@ -37,7 +37,7 @@ public class BeanConverterService {
 	public CardBean convertCard(Card card) {
 		if (card == null) return null;
 		
-		CardBean cardBean = new CardBean(card.getClientId(), card.getName());
+		CardBean cardBean = new CardBean(card.getClientId() /*, card.getName() */);
 		
 		// create beans for all of the data objects
 		if (card.getData() != null) {
