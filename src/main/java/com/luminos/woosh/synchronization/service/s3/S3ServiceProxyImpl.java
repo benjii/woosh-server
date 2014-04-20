@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;

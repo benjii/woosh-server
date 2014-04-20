@@ -8,7 +8,7 @@ import java.io.StringWriter;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -35,8 +35,8 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.luminos.woosh.dao.UserDao;
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.testutils.WooshDefaultMultipartHttpServletRequest;
 import com.luminos.woosh.testutils.MockServletContextWebContextLoader;
+import com.luminos.woosh.testutils.WooshDefaultMultipartHttpServletRequest;
 
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;

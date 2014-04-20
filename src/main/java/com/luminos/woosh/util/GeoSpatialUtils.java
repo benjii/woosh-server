@@ -2,7 +2,7 @@ package com.luminos.woosh.util;
 
 import java.text.DecimalFormat;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

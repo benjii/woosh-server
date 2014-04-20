@@ -50,6 +50,7 @@ public class HomeController extends AbstractLuminosController {
 		mav.addObject("card_count", cardDao.count());
 		mav.addObject("full_card_count", cardDao.countAll());
 		mav.addObject("offer_count", offerDao.count());
+		mav.addObject("active_offer_count", offerDao.countAllActive());
 		mav.addObject("acceptance_count", acceptanceDao.count());
 		mav.addObject("scan_count", scanDao.count());
 		

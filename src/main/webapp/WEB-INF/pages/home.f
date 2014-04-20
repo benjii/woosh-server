@@ -45,10 +45,10 @@
 	<div id='header'>Woosh Server</div>
 
 	<div id='copy'>
-		<p>Users have created ${full_card_count} cards, of which ${card_count} are currently active (non-deleted).</p>
-		<p>Collectively, those cards have been offered ${offer_count} times.</p>
-		<p>Those offers have been accepted ${acceptance_count} times.</p>
-		<p>Overall, users have performed ${scan_count} scans for offers.</p>
+		<p>Users have created ${full_card_count} cards (${full_card_count - card_count} of which have been deleted).</p>
+		<p>Those cards have been offered ${offer_count} times (${active_offer_count} are currently active [non-expired]).</p>
+		<p>There have been ${acceptance_count} acceptances of offers.</p>
+		<p>Users have performed ${scan_count} scans for offers.</p>
 	</div>
 
 	<div id='gfx'>

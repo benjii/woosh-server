@@ -1,6 +1,8 @@
 package com.luminos.woosh.dao.hibernate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -56,6 +58,15 @@ public class OfferDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Offer> i
 		Collection<Offer> offersToPresent = CollectionUtils.subtract(availableOffers, offersAlreadyAcceptedByUser);
 		
 		return new ArrayList<Offer>(offersToPresent);
+	}
+
+	@Override
+	public Integer countAllActive() {
+		return (Integer) getSession().createCriteria(Offer.class, "o")
+									 .setProjection(Projections.count("id"))
+									 .add(Restrictions.gt("offerEnd", new Timestamp(Calendar.getInstance().getTimeInMillis())))
+									 .add(RECORD_IS_NOT_DELETED)
+									 .uniqueResult();
 	}
 
 }

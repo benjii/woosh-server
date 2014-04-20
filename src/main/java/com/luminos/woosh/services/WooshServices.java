@@ -456,8 +456,16 @@ public class WooshServices {
 	public Receipt expireOffer(String id, User user) {
 		Offer offerToExpire = offerDao.findByClientId(id);
 
+		// check to see if this offer is already expired
+		Timestamp now = new Timestamp(Calendar.getInstance().getTimeInMillis());		
+		
+		// if we are then note it in the log, but otherwise proceed normally
+		if ( offerToExpire.getOfferEnd().before(now) ) {
+			LOGGER.info("Offer '" + offerToExpire.getId() + "' is already expired, but we'll expire it anyway.");
+		}
+		
 		// to expire an offer we simply move the offer end time to be right now
-		offerToExpire.setOfferEnd(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		offerToExpire.setOfferEnd(now);
 		offerDao.save(offerToExpire);
 		
 		// record the action in the database log

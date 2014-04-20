@@ -1,6 +1,6 @@
 package com.luminos.woosh.controller;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class AuthenticationController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(AuthenticationController.class);
 	
-	private static final Integer MINIMUM_USERNAME_LENGTH = 8;
+	private static final Integer MINIMUM_USERNAME_LENGTH = 4;
 
 	private static final Integer MINIMUM_PASSWORD_LENGTH = 6;
 
