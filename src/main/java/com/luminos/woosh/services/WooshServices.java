@@ -63,6 +63,8 @@ public class WooshServices {
 
 	private static final String MOTD_KEY = "MOTD";
 
+	private static final String RADIUS_IN_METRES_KEY = "SCAN_RADIUS_IN_METRES";
+
 	private static final Integer UNLIMITED_USERS = -1;
 
 	
@@ -374,8 +376,11 @@ public class WooshServices {
 		Scan scan = new Scan(user, location);
 		scanDao.save(scan);
 		
+		// find the default scan radius
+		Configuration radiusInMetres = configurationDao.findByKey(RADIUS_IN_METRES_KEY);
+		
 		// scan for offers
-		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan);
+		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, new Integer(radiusInMetres.getValue()));
 		List<CandidateOffer> beans = new ArrayList<CandidateOffer>();
 
 		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + location.getX() + "," + location.getY() + ")");

@@ -26,7 +26,7 @@ public class OfferDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Offer> i
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Offer> findOffersWithinRange(Scan scan) {
+	public List<Offer> findOffersWithinRange(Scan scan, Integer radiusInMetres) {
 		Criteria criteria = super.getSession().createCriteria(Offer.class, "o");
 
 		// TODO is this the most optimal way to do this? can we do it with a single SQL statement?
@@ -44,13 +44,13 @@ public class OfferDaoHibernateImpl extends GenericWooshDaoHibernateImpl<Offer> i
 																   		  .add(Restrictions.eq("a.owner", scan.getOwner()))
 																   		  .list();
 		
-		// find the full list of available offers, including the ones that have arleady been accepted (but not owned by the scanning user)
+		// find the full list of available offers, including the ones that have already been accepted (but not owned by the scanning user)
 		criteria.add(RECORD_IS_NOT_DELETED)
 				.add(Restrictions.ne("remainingHops", 0))
 				.add(Restrictions.lt("offerStart", scan.getScannedAt()))
 				.add(Restrictions.gt("offerEnd", scan.getScannedAt()))
 				.add(Restrictions.ne("owner", scan.getOwner()))
-				.add(Restrictions.sqlRestriction("st_distance_spheroid(this_.offerregion, st_geomfromtext('" + scan.getLocation().toText() +"'), 'SPHEROID[\"WGS 84\", 6378137, 298.257223563]') < 300"));
+				.add(Restrictions.sqlRestriction("st_distance_spheroid(this_.offerregion, st_geomfromtext('" + scan.getLocation().toText() +"'), 'SPHEROID[\"WGS 84\", 6378137, 298.257223563]') < " + radiusInMetres + ""));
 						
 		List<Offer> availableOffers = (List<Offer>) criteria.list();
 		

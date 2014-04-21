@@ -16,7 +16,7 @@ public interface OfferDao extends GenericWooshDao<Offer> {
 	 * @param location
 	 * @return
 	 */
-	List<Offer> findOffersWithinRange(Scan scan);
+	List<Offer> findOffersWithinRange(Scan scan, Integer radiusInMetres);
 
 	/**
 	 * Counts the number of active (non-expired) offers in the system. Any offer that has an offer end in the future
