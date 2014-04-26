@@ -65,6 +65,8 @@ public class WooshServices {
 
 	private static final String RADIUS_IN_METRES_KEY = "SCAN_RADIUS_IN_METRES";
 
+	private static final Integer DEFAULT_SCAN_RADIUS = 300;		// metres
+	
 	private static final Integer UNLIMITED_USERS = -1;
 
 	
@@ -370,17 +372,32 @@ public class WooshServices {
 	 * @return
 	 */
 	@Transactional
-	public List<CandidateOffer> findOffers(Point location, User user) {
+	public List<CandidateOffer> findOffers(Point location, Integer accuracy, User user) {
 		
 		// record the location and time of the offer scan (we don't do anything with this data, it's just for historical purposes)
 		Scan scan = new Scan(user, location);
 		scanDao.save(scan);
+
+		// when determining the scan radius we;
+		//  1. use the 'accuracy' parameter, if present
+		//  2. use the database-configured value, if present
+		//	3. use the default scan radius
 		
-		// find the default scan radius
-		Configuration radiusInMetres = configurationDao.findByKey(RADIUS_IN_METRES_KEY);
+		Integer scanRadius = DEFAULT_SCAN_RADIUS;
+		if ( accuracy != null && accuracy >= 5 ) {
+			scanRadius = accuracy;
+		} else {
+			Configuration databaseConfiguredRadius = configurationDao.findByKey(RADIUS_IN_METRES_KEY);
+
+			if ( databaseConfiguredRadius != null ) {
+				scanRadius = new Integer(databaseConfiguredRadius.getValue());
+			} else {
+				scanRadius = DEFAULT_SCAN_RADIUS;
+			}
+		}
 		
 		// scan for offers
-		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, new Integer(radiusInMetres.getValue()));
+		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, scanRadius);
 		List<CandidateOffer> beans = new ArrayList<CandidateOffer>();
 
 		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + location.getX() + "," + location.getY() + ")");

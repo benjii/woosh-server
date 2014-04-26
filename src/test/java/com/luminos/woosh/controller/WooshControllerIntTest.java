@@ -28,6 +28,9 @@ import com.luminos.woosh.util.GeoSpatialUtils;
  */
 public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 	
+	private static final Integer DEFAULT_SCAN_RADIUS = 300;		// metres
+
+	
 	@Autowired
 	private WooshController wooshController = null;
 	
@@ -39,7 +42,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 	
 	@Autowired
 	private AcceptanceDao acceptanceDao = null;
-
+	
 
 	@Test
 	public void canFindOffers() {
@@ -62,7 +65,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		assertEquals(1, super.countRowsInTable("Offer"));
 
 		// now scan for the offer
-		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D);
+		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D, DEFAULT_SCAN_RADIUS);
 		
 		assertEquals(1, super.countRowsInTable("Scan"));
 //		assertEquals(1, super.countRowsInTable("Acceptance"));
@@ -89,7 +92,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		assertEquals(1, super.countRowsInTable("Offer"));
 
 		// now scan for the offer
-		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D);
+		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D, DEFAULT_SCAN_RADIUS);
 		
 		assertEquals(1, super.countRowsInTable("Scan"));
 		assertEquals(0, super.countRowsInTable("Acceptance"));
@@ -129,7 +132,7 @@ public class WooshControllerIntTest extends AbstractLuminosIntegrationTest {
 		assertEquals(1, super.countRowsInTable("Acceptance"));
 		
 		// now scan for the offer
-		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D);
+		List<CandidateOffer> availableOffers = wooshController.findOffers(0.15D, 122.2D, DEFAULT_SCAN_RADIUS);
 
 		// ensure that only 1 offer is made (there are two offers in the database but one has already been accepted)
 		assertEquals(1, availableOffers.size());

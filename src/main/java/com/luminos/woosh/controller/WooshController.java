@@ -225,17 +225,21 @@ public class WooshController extends AbstractLuminosController {
 
 		return receipt;
 	}
-	
+
 	/**
 	 * 
-	 * @param latitude
-	 * @param longitude
+	 * @param latitude The reported latitude of the scanning device.
+	 * @param longitude The reported latitude of the scanning device.
+	 * @param accuracy The accuracy at which the device reported that it was able to determine it's location.
 	 * @return
 	 */
 	@RequestMapping(value="/m/offers", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public List<CandidateOffer> findOffers(@RequestParam Double latitude, @RequestParam Double longitude) {
+	public List<CandidateOffer> findOffers(@RequestParam Double latitude,
+										   @RequestParam Double longitude,
+										   @RequestParam(required=false) Integer accuracy) {
+
 		User authenticatedUser = super.getUser();
 		
 		LOGGER.info("Scanning for offers at location (" + latitude + "," + longitude + ") for user: " + authenticatedUser.getUsername());
@@ -244,7 +248,7 @@ public class WooshController extends AbstractLuminosController {
 		Point location = GeoSpatialUtils.createPoint(latitude, longitude);
 		
 		// scan for offers for the user
-		List<CandidateOffer> availableOffers = wooshServices.findOffers(location, super.getUser());
+		List<CandidateOffer> availableOffers = wooshServices.findOffers(location, accuracy, super.getUser());
 		
 		return availableOffers;
 	}
