@@ -10,6 +10,8 @@ public class PingResponse {
 	
 	private String serverTime = null;
 	
+	private Integer totalSlotsAvailable = null;
+	
 	private Integer remainingUserSlots = null;
 	
 	private String motd = null;
@@ -34,6 +36,14 @@ public class PingResponse {
 
 	public void setServerTime(String serverTime) {
 		this.serverTime = serverTime;
+	}
+
+	public Integer getTotalSlotsAvailable() {
+		return totalSlotsAvailable;
+	}
+
+	public void setTotalSlotsAvailable(Integer totalSlotsAvailable) {
+		this.totalSlotsAvailable = totalSlotsAvailable;
 	}
 
 	public Integer getRemainingUserSlots() {

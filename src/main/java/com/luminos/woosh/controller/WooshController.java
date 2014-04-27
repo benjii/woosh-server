@@ -1,5 +1,7 @@
 package com.luminos.woosh.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +49,8 @@ public class WooshController extends AbstractLuminosController {
 
 	private static final Logger LOGGER = Logger.getLogger(WooshController.class);
 	
+	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
 	
 	@Autowired
 	private CardDao cardDao = null;
@@ -78,6 +82,33 @@ public class WooshController extends AbstractLuminosController {
 		return wooshServices.recordPing(authenticatedUser);
 	}
 	
+	/**
+	 * Client devices can call this method to say "hello" to the Woosh servers and register client app and device information.
+	 * 
+	 * @param appVersion
+	 * @param deviceType
+	 * @param osVersion
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/m/hello", method=RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public String ping(@RequestParam(required=false, value="v") String appVersion,
+					   @RequestParam(required=false, value="type") String deviceType,
+					   @RequestParam(required=false, value="os") String osVersion,
+					   HttpServletRequest request) {
+		
+		User authenticatedUser = super.getUser();
+
+		LOGGER.info("Received 'hello' from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
+
+		// record that the device ping'd the server
+		wooshServices.recordHello(authenticatedUser, appVersion, deviceType, osVersion);
+		
+		return "{ \"status\": \"OK\", \"server_time\": \"" + SDF.format(Calendar.getInstance().getTime()) + "\" }";
+	}
+
 	/**
 	 * 
 	 * @param card

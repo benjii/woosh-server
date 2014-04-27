@@ -66,7 +66,13 @@ public class WooshServices {
 	private static final String RADIUS_IN_METRES_KEY = "SCAN_RADIUS_IN_METRES";
 
 	private static final Integer DEFAULT_SCAN_RADIUS = 300;		// metres
-	
+
+	private static final Integer MAX_USER_DISTANCE = 5;		// metres
+
+	private static final Integer OPTIMAL_DEVICE_ACCURACY = 5;		// metres
+
+	private static final Integer MAXIMUM_DEVICE_INACCURACY = 200;		// metres
+
 	private static final Integer UNLIMITED_USERS = -1;
 
 	
@@ -177,6 +183,7 @@ public class WooshServices {
 		// construct the ping response object
 		pingResponse.setStatus("OK");
 		pingResponse.setServerTime(SDF.format(Calendar.getInstance().getTime()));
+		pingResponse.setTotalSlotsAvailable(userLimit);
 		pingResponse.setRemainingUserSlots(userLimit - userCount);
 		pingResponse.setMotd(motd.getValue());
 		
@@ -188,14 +195,48 @@ public class WooshServices {
 
 	/**
 	 * 
+	 * @param user
+	 */
+	@Transactional
+	public void recordLoginTime(User user) {
+		
+		// refresh the user and record the last logged in time
+		User refreshedUser = userDao.findById(user.getId());
+		refreshedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
+		userDao.save(refreshedUser);
+	}
+
+	/**
+	 * 
+	 * @param user
+	 * @param appVersion
+	 * @param deviceType
+	 * @param osVersion
+	 */
+	@Transactional
+	public void recordHello(User user, String appVersion, String deviceType, String osVersion) {
+
+		LOGGER.info("User '" + user.getUsername() + "' said hello (app version=" + appVersion + ", device type=" + deviceType + ", OS version=" + osVersion + ")");
+		
+		// refresh the user and record the last logged in time
+		User refreshedUser = userDao.findById(user.getId());
+		refreshedUser.setAppVersion(appVersion);
+		refreshedUser.setDeviceType(deviceType);
+		refreshedUser.setOsVersion(osVersion);
+		refreshedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
+		userDao.save(refreshedUser);		
+
+		// log the action to the database for audit purposes
+		logEntryDao.save(LogEntry.clientHelloEntry(refreshedUser));		
+	}
+
+	/**
+	 * 
 	 * @param authenticatedUser
 	 */
 	@Transactional
 	public void authenticate(User authenticatedUser) {
-		
-		// record the time of the login
-		authenticatedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
-		userDao.save(authenticatedUser);
+		this.recordLoginTime(authenticatedUser);
 		
 		// log the fact that the user authenticated successfully
 		LOGGER.info("User '" + authenticatedUser.getUsername() + "' authenticated successfully.");
@@ -384,17 +425,41 @@ public class WooshServices {
 		//	3. use the default scan radius
 		
 		Integer scanRadius = DEFAULT_SCAN_RADIUS;
-		if ( accuracy != null && accuracy >= 5 ) {
-			scanRadius = accuracy;
+		if ( accuracy != null && accuracy >= OPTIMAL_DEVICE_ACCURACY ) {
+			
+			// if the location accuracy reported by the device is too high, reduce it to an acceptable value
+			// this protects Woosh from scanning an area that is too large whilst maintaining a reasonable chance
+			// of the user finding the offer(s) that they except / want
+			if ( accuracy >= MAXIMUM_DEVICE_INACCURACY ) {
+				accuracy = MAXIMUM_DEVICE_INACCURACY;
+			}
+			
+			// when a device reports it's location accuracy for a scan we assume that the offering device(s)
+			// were at the same accuracy (the 'worst-case' scenario that we consider)
+			// therefore, to 'guarantee' picking up offers in the area the scan radius is
+			//		2x + y
+			// where;
+			//		x = accuracy reported by the scanning device
+			//		y = the maximum distance two users can be apart to be considered 'proximal' to each other
+			
+			scanRadius = (2 * accuracy) + MAX_USER_DISTANCE;
+		
+			LOGGER.info("User '" + user.getUsername() + "' device provided location accuracy and is scanning for offers at an accuracy of " + scanRadius + " metres.");
+
 		} else {
+		
 			Configuration databaseConfiguredRadius = configurationDao.findByKey(RADIUS_IN_METRES_KEY);
 
 			if ( databaseConfiguredRadius != null ) {
 				scanRadius = new Integer(databaseConfiguredRadius.getValue());
+				LOGGER.info("User '" + user.getUsername() + "' device did not provide location accuracy and is scanning for offers at the default database-configured accuracy of " + scanRadius + " metres.");
 			} else {
 				scanRadius = DEFAULT_SCAN_RADIUS;
+				LOGGER.info("User '" + user.getUsername() + "' device did not provide location accuracy and is scanning for offers at the default system accuracy of " + scanRadius + " metres.");
 			}
+			
 		}
+		
 		
 		// scan for offers
 		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, scanRadius);

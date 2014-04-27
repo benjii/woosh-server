@@ -76,7 +76,13 @@ public class User implements UserDetails, Comparable<User> {
 	
 	// the creation date for the user
 	private Timestamp memberSince = null;
-			
+	
+	private String appVersion = null;
+
+	private String deviceType = null;
+
+	private String osVersion = null;
+
 	private String invitationalKey = null;
 	
 	@OneToOne
@@ -112,6 +118,7 @@ public class User implements UserDetails, Comparable<User> {
 		// set the sign-up time of the user
 		Calendar c = Calendar.getInstance();
 		this.memberSince = new Timestamp(c.getTimeInMillis());
+		this.lastLogin = new Timestamp(c.getTimeInMillis());
 	}
 
 	public User(String username, String password, String email, User invitedBy) {
@@ -328,6 +335,30 @@ public class User implements UserDetails, Comparable<User> {
 
 	public void setMemberSince(Timestamp memberSince) {
 		this.memberSince = memberSince;
+	}
+
+	public String getAppVersion() {
+		return appVersion;
+	}
+
+	public void setAppVersion(String appVersion) {
+		this.appVersion = appVersion;
+	}
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
+	public String getOsVersion() {
+		return osVersion;
+	}
+
+	public void setOsVersion(String osVersion) {
+		this.osVersion = osVersion;
 	}
 
 	public String getInvitationalKey() {

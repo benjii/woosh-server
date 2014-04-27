@@ -73,6 +73,10 @@ public class LogEntry {
 		return new LogEntry(null, UserAction.PING);
 	}
 
+	public static LogEntry clientHelloEntry(User user) {
+		return new LogEntry(user, UserAction.CLIENT_HELLO);
+	}
+
 	public static LogEntry signedUpEntry(User user) {
 		return new LogEntry(user, UserAction.SIGN_UP);
 	}
