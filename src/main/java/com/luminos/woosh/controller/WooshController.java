@@ -230,7 +230,7 @@ public class WooshController extends AbstractLuminosController {
 	public Receipt reportOffer(@PathVariable String id, HttpServletResponse response) {
 		User authenticatedUser = super.getUser();
 
-		// call the service to expire the offer
+		// call the service to report the offer
 		Receipt receipt = wooshServices.reportOffer(id, authenticatedUser);
 		
 		LOGGER.info("Successfully reported offer " + id);		

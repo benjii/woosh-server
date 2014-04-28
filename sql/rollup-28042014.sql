@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN apnstoken character varying(255);

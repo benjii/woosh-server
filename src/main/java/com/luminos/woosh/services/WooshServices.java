@@ -107,6 +107,9 @@ public class WooshServices {
 	private RemoteBinaryObjectDao remoteBinaryObjectDao = null;
 	
 	@Autowired
+	private PushNotificationService pushNotificationService = null;	
+	
+	@Autowired
 	private CloudServiceProxy cloudServiceProxy = null;
 
 	@Autowired
@@ -529,6 +532,9 @@ public class WooshServices {
 		refreshedUser.addCard(clonedCard);
 		refreshedUser.addAcceptance(acceptance);
 
+		// send a push notification to the offer owner that their offer was accepted
+		pushNotificationService.alert(offer.getOwner(), "Your offer was accepted by " + user.getUsername());
+		
 		// record the action in the database log
 		logEntryDao.save(LogEntry.acceptOfferEntry(user));			
 
@@ -555,6 +561,10 @@ public class WooshServices {
 		// to expire an offer we simply move the offer end time to be right now
 		offerToExpire.setOfferEnd(now);
 		offerDao.save(offerToExpire);
+		
+		// send a push notification to confirm to the user that their offer expired
+		Point offerLocation = (Point) offerToExpire.getOfferRegion();
+		pushNotificationService.alert(user, "An offer that you made at (" + offerLocation.getX() + "," + offerLocation.getY() + ") has now expired.");
 		
 		// record the action in the database log
 		logEntryDao.save(LogEntry.expireOfferEntry(user));			
