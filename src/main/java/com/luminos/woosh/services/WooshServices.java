@@ -214,15 +214,16 @@ public class WooshServices {
 	 * @param osVersion
 	 */
 	@Transactional
-	public void recordHello(User user, String appVersion, String deviceType, String osVersion) {
+	public void recordHello(User user, String appVersion, String deviceType, String osVersion, String apnsToken) {
 
-		LOGGER.info("User '" + user.getUsername() + "' said hello (app version=" + appVersion + ", device type=" + deviceType + ", OS version=" + osVersion + ")");
+		LOGGER.info("User '" + user.getUsername() + "' said hello (app version=" + appVersion + ", device type=" + deviceType + ", OS version=" + osVersion + ", token=" + apnsToken + ")");
 		
 		// refresh the user and record the last logged in time
 		User refreshedUser = userDao.findById(user.getId());
 		refreshedUser.setAppVersion(appVersion);
 		refreshedUser.setDeviceType(deviceType);
 		refreshedUser.setOsVersion(osVersion);
+		refreshedUser.setApnsToken(apnsToken);
 		refreshedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
 		userDao.save(refreshedUser);		
 

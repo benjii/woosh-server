@@ -82,6 +82,8 @@ public class User implements UserDetails, Comparable<User> {
 	private String deviceType = null;
 
 	private String osVersion = null;
+	
+	private String apnsToken = null;
 
 	private String invitationalKey = null;
 	
@@ -359,6 +361,14 @@ public class User implements UserDetails, Comparable<User> {
 
 	public void setOsVersion(String osVersion) {
 		this.osVersion = osVersion;
+	}
+
+	public String getApnsToken() {
+		return apnsToken;
+	}
+
+	public void setApnsToken(String apnsToken) {
+		this.apnsToken = apnsToken;
 	}
 
 	public String getInvitationalKey() {

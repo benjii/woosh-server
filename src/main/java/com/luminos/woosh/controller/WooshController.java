@@ -91,20 +91,21 @@ public class WooshController extends AbstractLuminosController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value="/m/hello", method=RequestMethod.GET)
+	@RequestMapping(value="/m/hello", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public String ping(@RequestParam(required=false, value="v") String appVersion,
-					   @RequestParam(required=false, value="type") String deviceType,
-					   @RequestParam(required=false, value="os") String osVersion,
-					   HttpServletRequest request) {
+	public String hello(@RequestParam(required=false, value="v") String appVersion,
+					   	@RequestParam(required=false, value="type") String deviceType,
+					   	@RequestParam(required=false, value="os") String osVersion,
+					   	@RequestParam(required=false, value="tok") String apnsToken,
+					   	HttpServletRequest request) {
 		
 		User authenticatedUser = super.getUser();
 
 		LOGGER.info("Received 'hello' from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
 
 		// record that the device ping'd the server
-		wooshServices.recordHello(authenticatedUser, appVersion, deviceType, osVersion);
+		wooshServices.recordHello(authenticatedUser, appVersion, deviceType, osVersion, apnsToken);
 		
 		return "{ \"status\": \"OK\", \"server_time\": \"" + SDF.format(Calendar.getInstance().getTime()) + "\" }";
 	}
