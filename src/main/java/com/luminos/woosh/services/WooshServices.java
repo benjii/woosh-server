@@ -65,15 +65,18 @@ public class WooshServices {
 
 	private static final String RADIUS_IN_METRES_KEY = "SCAN_RADIUS_IN_METRES";
 
-	private static final Integer DEFAULT_SCAN_RADIUS = 300;		// metres
+	private static final Integer DEFAULT_SCAN_RADIUS = 300;			// the maximum scan radius - use only in an emergency
 
-	private static final Integer MAX_USER_DISTANCE = 5;		// metres
+	private static final Integer MAX_USER_DISTANCE = 5;				// the maximum distance, in metres, that two users are considered in
+																	// proximity to each other
 
-	private static final Integer OPTIMAL_DEVICE_ACCURACY = 5;		// metres
+	private static final Integer OPTIMAL_DEVICE_ACCURACY = 5;		// if a device reports a lower value than this for its location accuracy
+																	// then attempt no further compensation
 
-	private static final Integer MAXIMUM_DEVICE_INACCURACY = 200;		// metres
+	private static final Integer MAXIMUM_DEVICE_INACCURACY = 200;	// if the device reports over this value as its location accuracy then
+																	// consider the device as "un-Wooshable"
 
-	private static final Integer UNLIMITED_USERS = -1;
+	private static final Integer UNLIMITED_USERS = -1;				// value to indicate that the invitation mechanism is no longer requred
 
 	
 	@Autowired
@@ -212,21 +215,37 @@ public class WooshServices {
 	/**
 	 * 
 	 * @param user
+	 * @param apnsToken
+	 */
+	@Transactional
+	public void updateApnsToken(User user, String apnsToken) {
+		LOGGER.info("User '" + user.getUsername() + "' submitted their APNS token (" + apnsToken + ")");
+
+		User refreshedUser = userDao.findById(user.getId());
+		refreshedUser.setApnsToken(apnsToken);
+		userDao.save(refreshedUser);
+
+		// log the action to the database for audit purposes
+		logEntryDao.save(LogEntry.apnsTokenEntry(refreshedUser));	
+	}
+
+	/**
+	 * 
+	 * @param user
 	 * @param appVersion
 	 * @param deviceType
 	 * @param osVersion
 	 */
 	@Transactional
-	public void recordHello(User user, String appVersion, String deviceType, String osVersion, String apnsToken) {
+	public void recordHello(User user, String appVersion, String deviceType, String osVersion) {
 
-		LOGGER.info("User '" + user.getUsername() + "' said hello (app version=" + appVersion + ", device type=" + deviceType + ", OS version=" + osVersion + ", token=" + apnsToken + ")");
+		LOGGER.info("User '" + user.getUsername() + "' said hello (app version=" + appVersion + ", device type=" + deviceType + ", OS version=" + osVersion + ")");
 		
 		// refresh the user and record the last logged in time
 		User refreshedUser = userDao.findById(user.getId());
 		refreshedUser.setAppVersion(appVersion);
 		refreshedUser.setDeviceType(deviceType);
 		refreshedUser.setOsVersion(osVersion);
-		refreshedUser.setApnsToken(apnsToken);
 		refreshedUser.setLastLogin( new Timestamp(Calendar.getInstance().getTimeInMillis() ));
 		userDao.save(refreshedUser);		
 
@@ -464,12 +483,16 @@ public class WooshServices {
 			
 		}
 		
-		
 		// scan for offers
 		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, scanRadius);
 		List<CandidateOffer> beans = new ArrayList<CandidateOffer>();
 
 		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + location.getX() + "," + location.getY() + ")");
+
+		// set scan properties for Woosh intelligence purposes
+		scan.setScanRadius(scanRadius);
+		scan.setNumberOfOffersFound(availableOffers.size());
+		scan.setReportedAccuracy(accuracy);
 
 		// process each of the available offers
 		for (Offer offer : availableOffers) {

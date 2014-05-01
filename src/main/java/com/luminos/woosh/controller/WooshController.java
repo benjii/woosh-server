@@ -97,7 +97,6 @@ public class WooshController extends AbstractLuminosController {
 	public String hello(@RequestParam(required=false, value="v") String appVersion,
 					   	@RequestParam(required=false, value="type") String deviceType,
 					   	@RequestParam(required=false, value="os") String osVersion,
-					   	@RequestParam(required=false, value="tok") String apnsToken,
 					   	HttpServletRequest request) {
 		
 		User authenticatedUser = super.getUser();
@@ -105,9 +104,27 @@ public class WooshController extends AbstractLuminosController {
 		LOGGER.info("Received 'hello' from user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
 
 		// record that the device ping'd the server
-		wooshServices.recordHello(authenticatedUser, appVersion, deviceType, osVersion, apnsToken);
+		wooshServices.recordHello(authenticatedUser, appVersion, deviceType, osVersion);
 		
 		return "{ \"status\": \"OK\", \"server_time\": \"" + SDF.format(Calendar.getInstance().getTime()) + "\" }";
+	}
+
+	/**
+	 * 
+	 * @param apnsToken
+	 * @param request
+	 */
+	@RequestMapping(value="/m/apns", method=RequestMethod.POST)
+	@ResponseStatus(value=HttpStatus.OK)
+	@ResponseBody
+	public void apnsToken(@RequestParam("apnsToken") String apnsToken, HttpServletRequest request) {
+		User authenticatedUser = super.getUser();
+		
+		LOGGER.info("Received APNS token for user '" + authenticatedUser.getUsername() + "' from " + request.getRemoteAddr());
+
+		// TODO perform input validation
+		
+		wooshServices.updateApnsToken(authenticatedUser, apnsToken);
 	}
 
 	/**

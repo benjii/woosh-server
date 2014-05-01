@@ -7,15 +7,15 @@ CREATE EXTENSION postgis_tiger_geocoder;
 
 
 create table Acceptance (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, accepted bool, acceptedAt timestamp, offer_id varchar(255), card_id varchar(255), owner_id varchar(255), primary key (id));
-create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), originalCard_id varchar(255), owner_id varchar(255), fromOffer_id varchar(255), lastOffer_id varchar(255), primary key (id));
-create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), card_id varchar(255), owner_id varchar(255), binaryData_id varchar(255), primary key (id));
+create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), fromOffer_id varchar(255), originalCard_id varchar(255), lastOffer_id varchar(255), owner_id varchar(255), primary key (id));
+create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), owner_id varchar(255), binaryData_id varchar(255), card_id varchar(255), primary key (id));
 create table Card_CardData (Card_id varchar(255) not null, data_id varchar(255) not null, unique (data_id));
 create table Card_Offer (Card_id varchar(255) not null, offers_id varchar(255) not null, unique (offers_id));
 create table Configuration (id varchar(255) not null, version int4, key varchar(255), value varchar(255), primary key (id));
 create table Offer (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, remainingHops int4, offerStart timestamp, offerEnd timestamp, offerRegion geometry not null, autoAccept bool, card_id varchar(255), owner_id varchar(255), primary key (id));
 create table RemoteBinaryObject (id varchar(255) not null, version int4, lastUpdated timestamp, deleted bool, remoteId varchar(255), user_id varchar(255), primary key (id));
 create table Role (id varchar(255) not null, version int4, authority varchar(255), description varchar(255), primary key (id));
-create table Scan (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, scannedAt timestamp, location geometry not null, owner_id varchar(255), primary key (id));
+create table Scan (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, scannedAt timestamp, location geometry not null, reportedAccuracy int4, scanRadius int4, numberOfOffersFound int4, owner_id varchar(255), primary key (id));
 create table Scan_Offer (Scan_id varchar(255) not null, offers_id varchar(255) not null);
 create table log (id varchar(255) not null, version int4, username varchar(255), action varchar(255), sequence varchar(255), date timestamp, user_id varchar(255), primary key (id));
 create table users (id varchar(255) not null, version int4, username varchar(255) not null, password varchar(255) not null, email varchar(255) not null, accountNonExpired bool not null, accountNonLocked bool not null, credentialsNonExpired bool not null, enabled bool not null, lastKnownLocation geometry, lastLogin timestamp, memberSince timestamp, appVersion varchar(255), deviceType varchar(255), osVersion varchar(255), apnsToken varchar(255), invitationalKey varchar(255), invitedBy_id varchar(255), primary key (id));
@@ -52,7 +52,7 @@ alter table users_Card add constraint FK94439F0789140866 foreign key (users_id) 
 alter table users_Role add constraint FK944AA46D89140866 foreign key (users_id) references users;
 alter table users_Role add constraint FK944AA46D682B5558 foreign key (authorities_id) references Role;
 alter table users_Scan add constraint FK944AEA74345D8A1B foreign key (scans_id) references Scan;
-alter table users_Scan add constraint FK944AEA7489140866 foreign key (users_id) references users;
+alter table users_Scan add constraint FK944AEA7489140866 foreign key (users_id) references users; 
 
 
 CREATE TABLE persistent_logins

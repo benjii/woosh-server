@@ -62,25 +62,28 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 	@SynchronizeIgnore
 	private User owner = null;
 
-	// the time at which the woosh occurred
+	// the time at which the scan occurred
 	private Timestamp scannedAt = new Timestamp(Calendar.getInstance().getTimeInMillis());
 
-	// the location at which the woosh occured
+	// the location at which the scan occurred
 	@Type(type="org.hibernatespatial.GeometryUserType")
 	@Column(nullable=false)
-//	@SynchronizationSerializer(serializer=GeometrySerializer.class, reportedSchemaType="WKT String")
 	private Point location = null;
 
+	// the location accuracy that the device reported, in metres
+	private Integer reportedAccuracy = null;
+	
+	// the radius of the scan, in metres
+	private Integer scanRadius = null;
+	
+	// the number of offers found (equal to offers.length)
+	private Integer numberOfOffersFound = null;
+	
 	// the list of offers that were made because of this scan
 	// many-to-many because one scan can have many offers, and one offer can be scanned for many times
 	@ManyToMany
 	private List<Offer> offers = null;
 
-//	// the list of (cloned) cards that were offered for this scan
-//	// many-to-many because one scan can have cards, and one card can be scanned for many times
-//	@ManyToMany
-//	private List<Card> cards = null;
-	
 	
 	public Scan() {
 	
@@ -107,23 +110,7 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offers.add(offer);
 	}
 
-//	/**
-//	 * 
-//	 * @param card
-//	 */
-//	public void addCard(Card card) {
-//		if (card == null) {
-//			throw new IllegalArgumentException("The card argument must not be NULL.");
-//		}
-//		
-//		if (this.cards == null) {
-//			this.cards = new ArrayList<Card>();
-//		}
-//		
-//		this.cards.add(card);
-//	}
 
-	
 	public String getId() {
 		return id;
 	}
@@ -196,6 +183,30 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 		this.location = location;
 	}
 
+	public Integer getReportedAccuracy() {
+		return reportedAccuracy;
+	}
+
+	public void setReportedAccuracy(Integer reportedAccuracy) {
+		this.reportedAccuracy = reportedAccuracy;
+	}
+
+	public Integer getScanRadius() {
+		return scanRadius;
+	}
+
+	public void setScanRadius(Integer scanRadius) {
+		this.scanRadius = scanRadius;
+	}
+
+	public Integer getNumberOfOffersFound() {
+		return numberOfOffersFound;
+	}
+
+	public void setNumberOfOffersFound(Integer numberOfOffersFound) {
+		this.numberOfOffersFound = numberOfOffersFound;
+	}
+
 	public List<Offer> getOffers() {
 		return offers;
 	}
@@ -203,13 +214,5 @@ public class Scan implements WritableSynchronizationEntity, UserScopedEntity {
 	public void setOffers(List<Offer> offers) {
 		this.offers = offers;
 	}
-
-//	public List<Card> getCards() {
-//		return cards;
-//	}
-//
-//	public void setCards(List<Card> cards) {
-//		this.cards = cards;
-//	}
 
 }

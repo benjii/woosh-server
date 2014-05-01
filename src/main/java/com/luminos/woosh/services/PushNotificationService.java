@@ -27,9 +27,9 @@ public class PushNotificationService {
 	
 	// note that these two constants must match
 	//	i.e.: if we're using the DEV APNS certificate then IS_PRODUCTION must be FALSE
-	private static final String APNS_P12_NAME = "woosh-prod-apns.p12";
+	private static final String APNS_P12_NAME = "woosh-dev-apns.p12";
 	
-	private static final Boolean IS_PRODUCTION = Boolean.TRUE;
+	private static final Boolean IS_PRODUCTION = Boolean.FALSE;
 
 	private static final String APNS_PASSWORD = "cat7,flow";
 
@@ -65,7 +65,7 @@ public class PushNotificationService {
 							Push.alert(message, is, APNS_PASSWORD, IS_PRODUCTION, tokens);							
 						}
 
-						LOGGER.info("Sent APNS notifications to " + recipients.size() + " users.");
+						LOGGER.info("Sent APNS notifications to " + recipients.size() + " users - '" + message + "'");
 
 					} catch (CommunicationException e) {
 						
@@ -110,7 +110,7 @@ public class PushNotificationService {
 					try {
 						
 						Push.alert(message, is, APNS_PASSWORD, IS_PRODUCTION, recipient.getApnsToken());
-						LOGGER.info("Sent APNS notification to user " + recipient.getUsername() + " (" + recipient.getApnsToken() + ")");
+						LOGGER.info("Sent APNS notification to user " + recipient.getUsername() + " (" + recipient.getApnsToken() + ") - '" + message + "'");
 					
 					} catch (CommunicationException e) {
 						
