@@ -440,6 +440,7 @@ public class WooshServices {
 		
 		// record the location and time of the offer scan (we don't do anything with this data, it's just for historical purposes)
 		Scan scan = new Scan(user, location);
+		scan.setReportedAccuracy(accuracy);
 		scanDao.save(scan);
 
 		// when determining the scan radius we;
@@ -487,12 +488,12 @@ public class WooshServices {
 		List<Offer> availableOffers = offerDao.findOffersWithinRange(scan, scanRadius);
 		List<CandidateOffer> beans = new ArrayList<CandidateOffer>();
 
-		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + location.getX() + "," + location.getY() + ")");
-
-		// set scan properties for Woosh intelligence purposes
+		// record some additional scan data
 		scan.setScanRadius(scanRadius);
 		scan.setNumberOfOffersFound(availableOffers.size());
-		scan.setReportedAccuracy(accuracy);
+		scanDao.save(scan);
+
+		LOGGER.info("Found " + availableOffers.size() + " offers for user " + user.getUsername() + " at location (" + location.getX() + "," + location.getY() + ")");
 
 		// process each of the available offers
 		for (Offer offer : availableOffers) {

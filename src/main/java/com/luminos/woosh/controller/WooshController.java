@@ -285,9 +285,9 @@ public class WooshController extends AbstractLuminosController {
 	@RequestMapping(value="/m/offers", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	@ResponseBody
-	public List<CandidateOffer> findOffers(@RequestParam Double latitude,
-										   @RequestParam Double longitude,
-										   @RequestParam(required=false) Integer accuracy) {
+	public List<CandidateOffer> findOffers(@RequestParam(value="latitude") Double latitude,
+										   @RequestParam(value="longitude") Double longitude,
+										   @RequestParam(value="accuracy", required=false) Integer accuracy) {
 
 		User authenticatedUser = super.getUser();
 		
