@@ -27,9 +27,9 @@ public class PushNotificationService {
 	
 	// note that these two constants must match
 	//	i.e.: if we're using the DEV APNS certificate then IS_PRODUCTION must be FALSE
-	private static final String APNS_P12_NAME = "woosh-dev-apns.p12";
+	private static final String APNS_P12_NAME = "woosh-prod-apns.p12";
 	
-	private static final Boolean IS_PRODUCTION = Boolean.FALSE;
+	private static final Boolean IS_PRODUCTION = Boolean.TRUE;
 
 	private static final String APNS_PASSWORD = "cat7,flow";
 
