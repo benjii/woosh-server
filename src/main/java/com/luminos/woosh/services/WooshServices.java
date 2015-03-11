@@ -541,14 +541,20 @@ public class WooshServices {
 		// when an offer is accepted we;
 		//	1. clone the card that was offered
 		//	2. record the acceptance of that offer
-		
+
+		Card originalCard = offer.getCard();
+
 		// clone the card
-		Card clonedCard = offer.getCard().clone(user, offer);
+		Card clonedCard = originalCard.clone(user, offer);
 		cardDao.save(clonedCard);
 
 		// record the acceptance
 		Acceptance acceptance = new Acceptance(user, clonedCard, offer, Boolean.TRUE, new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		acceptanceDao.save(acceptance);
+		
+		// record the acceptance on the original card
+		originalCard.addAcceptance(acceptance);
+		cardDao.save(originalCard);
 		
 		User refreshedUser = userDao.findByUsername(user.getUsername());
 		

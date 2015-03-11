@@ -6,13 +6,14 @@ CREATE EXTENSION fuzzystrmatch;
 CREATE EXTENSION postgis_tiger_geocoder;
 
 
-create table Acceptance (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, accepted bool, acceptedAt timestamp, offer_id varchar(255), card_id varchar(255), owner_id varchar(255), primary key (id));
-create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), fromOffer_id varchar(255), originalCard_id varchar(255), lastOffer_id varchar(255), owner_id varchar(255), primary key (id));
-create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), owner_id varchar(255), binaryData_id varchar(255), card_id varchar(255), primary key (id));
+create table Acceptance (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, accepted bool, acceptedAt timestamp, card_id varchar(255), owner_id varchar(255), offer_id varchar(255), primary key (id));
+create table Card (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, maximumRedemptions int4, maximumHops int4, shareMethod varchar(255), lastOffer_id varchar(255), originalCard_id varchar(255), owner_id varchar(255), fromOffer_id varchar(255), primary key (id));
+create table CardData (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, name varchar(255), data varchar(255), binaryData_id varchar(255), owner_id varchar(255), card_id varchar(255), primary key (id));
+create table Card_Acceptance (Card_id varchar(255) not null, acceptances_id varchar(255) not null, unique (acceptances_id));
 create table Card_CardData (Card_id varchar(255) not null, data_id varchar(255) not null, unique (data_id));
 create table Card_Offer (Card_id varchar(255) not null, offers_id varchar(255) not null, unique (offers_id));
 create table Configuration (id varchar(255) not null, version int4, key varchar(255), value varchar(255), primary key (id));
-create table Offer (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, remainingHops int4, offerStart timestamp, offerEnd timestamp, offerRegion geometry not null, autoAccept bool, card_id varchar(255), owner_id varchar(255), primary key (id));
+create table Offer (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, maximumAccepts int4, remainingHops int4, offerStart timestamp, offerEnd timestamp, offerRegion geometry not null, autoAccept bool, owner_id varchar(255), card_id varchar(255), primary key (id));
 create table RemoteBinaryObject (id varchar(255) not null, version int4, lastUpdated timestamp, deleted bool, remoteId varchar(255), user_id varchar(255), primary key (id));
 create table Role (id varchar(255) not null, version int4, authority varchar(255), description varchar(255), primary key (id));
 create table Scan (id varchar(255) not null, version int4, clientId varchar(255), clientVersion int4, lastUpdated timestamp, deleted bool, scannedAt timestamp, location geometry not null, reportedAccuracy int4, scanRadius int4, numberOfOffersFound int4, owner_id varchar(255), primary key (id));
@@ -27,12 +28,14 @@ alter table Acceptance add constraint FK2DB58E779508A040 foreign key (offer_id) 
 alter table Acceptance add constraint FK2DB58E778A60A2F4 foreign key (card_id) references Card;
 alter table Acceptance add constraint FK2DB58E77FC09DFDB foreign key (owner_id) references users;
 alter table Card add constraint FK1FEF30A36DEA foreign key (fromOffer_id) references Offer;
-alter table Card add constraint FK1FEF302AA23CD6 foreign key (lastOffer_id) references Offer;
 alter table Card add constraint FK1FEF30BC79C03 foreign key (originalCard_id) references Card;
+alter table Card add constraint FK1FEF302AA23CD6 foreign key (lastOffer_id) references Offer;
 alter table Card add constraint FK1FEF30FC09DFDB foreign key (owner_id) references users;
 alter table CardData add constraint FK3553AFAF9F63EDE foreign key (binaryData_id) references RemoteBinaryObject;
 alter table CardData add constraint FK3553AFA8A60A2F4 foreign key (card_id) references Card;
 alter table CardData add constraint FK3553AFAFC09DFDB foreign key (owner_id) references users;
+alter table Card_Acceptance add constraint FKBFC796E6B631114F foreign key (acceptances_id) references Acceptance;
+alter table Card_Acceptance add constraint FKBFC796E68A60A2F4 foreign key (Card_id) references Card;
 alter table Card_CardData add constraint FK19DC93299001DEE4 foreign key (data_id) references CardData;
 alter table Card_CardData add constraint FK19DC93298A60A2F4 foreign key (Card_id) references Card;
 alter table Card_Offer add constraint FKB001586D36CCFB25 foreign key (offers_id) references Offer;
@@ -52,7 +55,7 @@ alter table users_Card add constraint FK94439F0789140866 foreign key (users_id) 
 alter table users_Role add constraint FK944AA46D89140866 foreign key (users_id) references users;
 alter table users_Role add constraint FK944AA46D682B5558 foreign key (authorities_id) references Role;
 alter table users_Scan add constraint FK944AEA74345D8A1B foreign key (scans_id) references Scan;
-alter table users_Scan add constraint FK944AEA7489140866 foreign key (users_id) references users; 
+alter table users_Scan add constraint FK944AEA7489140866 foreign key (users_id) references users;
 
 
 CREATE TABLE persistent_logins

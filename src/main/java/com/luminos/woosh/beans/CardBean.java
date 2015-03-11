@@ -11,11 +11,13 @@ public class CardBean {
 
 	private String id = null;
 
-//	private String name = null;
-
 	private OfferBean lastOffer = null;
 	
 	private OfferBean fromOffer = null;
+
+	private Integer totalOffers = null;
+	
+	private Integer totalAcceptances = null;
 	
 	private List<CardDataBean> data = null;
 
@@ -24,9 +26,8 @@ public class CardBean {
 		// default constructor required by Spring MVC
 	}
 	
-	public CardBean(String id /*, String name, Offer lastOffer, Offer fromOffer */) {
+	public CardBean(String id) {
 		this.id = id;
-//		this.name = name;
 	}
 
 
@@ -46,14 +47,6 @@ public class CardBean {
 		this.id = id;
 	}
 
-//	public String getName() {
-//		return name;
-//	}
-//
-//	public void setName(String name) {
-//		this.name = name;
-//	}
-
 	public OfferBean getLastOffer() {
 		return lastOffer;
 	}
@@ -68,6 +61,22 @@ public class CardBean {
 
 	public void setFromOffer(OfferBean fromOffer) {
 		this.fromOffer = fromOffer;
+	}
+
+	public Integer getTotalOffers() {
+		return totalOffers;
+	}
+
+	public void setTotalOffers(Integer totalOffers) {
+		this.totalOffers = totalOffers;
+	}
+
+	public Integer getTotalAcceptances() {
+		return totalAcceptances;
+	}
+
+	public void setTotalAcceptances(Integer totalAcceptances) {
+		this.totalAcceptances = totalAcceptances;
 	}
 
 	public List<CardDataBean> getData() {

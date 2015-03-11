@@ -18,7 +18,6 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 
 import com.luminos.woosh.domain.common.User;
-import com.luminos.woosh.synchronization.Synchronizable;
 import com.luminos.woosh.synchronization.SynchronizeChildCollection;
 import com.luminos.woosh.synchronization.SynchronizeIgnore;
 import com.luminos.woosh.synchronization.UserScopedEntity;
@@ -30,7 +29,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Ben
  */
 @Entity
-@Synchronizable(alias="offers")
+//@Synchronizable(alias="offers")
 public class Offer implements WritableSynchronizationEntity, UserScopedEntity {
 	
 	private static final Integer DEFAULT_OFFER_DURATION = 10000;		// milliseconds

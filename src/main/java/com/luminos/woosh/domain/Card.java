@@ -106,6 +106,10 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	
 	@OneToMany
 	@Cascade(value=CascadeType.ALL)
+	private List<Acceptance> acceptances = null;
+	
+	@OneToMany
+	@Cascade(value=CascadeType.ALL)
 	private List<CardData> data = null;
 	
 	
@@ -198,6 +202,22 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 		this.offers.add(offer);
 	}
 
+	/**
+	 * 
+	 * @param acceptance
+	 */
+	public void addAcceptance(Acceptance acceptance) {
+		if (acceptance == null) {
+			throw new IllegalArgumentException("The acceptance argument must not be NULL.");
+		}
+		
+		if (this.acceptances == null) {
+			this.acceptances = new ArrayList<Acceptance>();
+		}
+		
+		this.acceptances.add(acceptance);
+	}
+
 	
 	public String getId() {
 		return id;
@@ -254,14 +274,6 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
-
-//	public String getName() {
-//		return name;
-//	}
-//
-//	public void setName(String name) {
-//		this.name = name;
-//	}
 
 	public Integer getMaximumAccepts() {
 		return maximumAccepts;
@@ -325,6 +337,14 @@ public class Card implements WritableSynchronizationEntity, UserScopedEntity {
 
 	public void setOffers(List<Offer> offers) {
 		this.offers = offers;
+	}
+
+	public List<Acceptance> getAcceptances() {
+		return acceptances;
+	}
+
+	public void setAcceptances(List<Acceptance> acceptances) {
+		this.acceptances = acceptances;
 	}
 
 	public List<CardData> getData() {

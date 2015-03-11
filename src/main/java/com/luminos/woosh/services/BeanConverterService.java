@@ -53,6 +53,16 @@ public class BeanConverterService {
 		if (card.getFromOffer() != null) {
 			cardBean.setFromOffer(this.convertOffer(card.getFromOffer()));			
 		}
+		if ( card.getOffers() != null ) {
+			// TODO this may not be optimal...
+			//		( (Integer) s.createFilter( collection, "select count(*)" ).list().get(0) ).intValue()
+			cardBean.setTotalOffers(card.getOffers().size());			
+		}
+		if ( card.getAcceptances() != null ) {
+			// TODO this may not be optimal...
+			//		( (Integer) s.createFilter( collection, "select count(*)" ).list().get(0) ).intValue()
+			cardBean.setTotalAcceptances(card.getAcceptances().size());			
+		}
 		
 		return cardBean;		
 	}
